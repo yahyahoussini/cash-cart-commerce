@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 
 interface OrderData {
   orderId: string;
+  trackingCode: string;
   customer: {
     firstName: string;
     lastName: string;
@@ -87,6 +88,7 @@ const OrderConfirmation = () => {
 🛍️ *New Order Confirmation*
 
 📋 *Order ID:* ${orderData.orderId}
+🔍 *Tracking Code:* ${orderData.trackingCode}
 👤 *Customer:* ${orderData.customer.firstName} ${orderData.customer.lastName}
 📧 *Email:* ${orderData.customer.email}
 📱 *Phone:* ${orderData.customer.phone}
@@ -123,6 +125,7 @@ ORDER RECEIPT
 =============
 
 Order ID: ${orderData.orderId}
+Tracking Code: ${orderData.trackingCode}
 Date: ${new Date(orderData.createdAt).toLocaleDateString()}
 
 CUSTOMER INFORMATION
@@ -150,6 +153,8 @@ Shipping: $${orderData.pricing.shipping.toFixed(2)}
 Total: $${orderData.pricing.total.toFixed(2)}
 
 Payment Method: Cash on Delivery
+
+Track your order at: /track-order using code: ${orderData.trackingCode}
 
 Thank you for shopping with MyCODStore!
     `;
@@ -209,6 +214,15 @@ Thank you for shopping with MyCODStore!
           <p className="text-xl text-gray-600">
             Thank you for your order. We'll process it shortly.
           </p>
+          {orderData && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg max-w-md mx-auto">
+              <p className="text-lg font-semibold text-blue-800">Your Tracking Code:</p>
+              <p className="text-2xl font-bold text-blue-900">{orderData.trackingCode}</p>
+              <p className="text-sm text-blue-600 mt-2">
+                Save this code to track your order anytime
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -220,7 +234,7 @@ Thank you for shopping with MyCODStore!
                 <CardTitle className="flex items-center justify-between">
                   <span>Order Details</span>
                   <Badge variant="secondary">
-                    {orderData.status.charAt(0).toUpperCase() + orderData.status.slice(1)}
+                    {orderData?.status.charAt(0).toUpperCase() + orderData?.status.slice(1)}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -228,12 +242,16 @@ Thank you for shopping with MyCODStore!
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Order ID</p>
-                    <p className="font-semibold">{orderData.orderId}</p>
+                    <p className="font-semibold">{orderData?.orderId}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Tracking Code</p>
+                    <p className="font-semibold">{orderData?.trackingCode}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Order Date</p>
                     <p className="font-semibold">
-                      {new Date(orderData.createdAt).toLocaleDateString()}
+                      {orderData && new Date(orderData.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <div>
@@ -242,7 +260,7 @@ Thank you for shopping with MyCODStore!
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Estimated Delivery</p>
-                    <p className="font-semibold">{orderData.estimatedDelivery}</p>
+                    <p className="font-semibold">{orderData?.estimatedDelivery}</p>
                   </div>
                 </div>
               </CardContent>
@@ -258,7 +276,7 @@ Thank you for shopping with MyCODStore!
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {orderData.items.map((item) => (
+                  {orderData?.items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4 p-4 border rounded-lg">
                       <img
                         src={item.image}
@@ -292,18 +310,18 @@ Thank you for shopping with MyCODStore!
               <CardContent>
                 <div className="space-y-1">
                   <p className="font-semibold">
-                    {orderData.customer.firstName} {orderData.customer.lastName}
+                    {orderData?.customer.firstName} {orderData?.customer.lastName}
                   </p>
-                  <p>{orderData.shippingAddress.address}</p>
+                  <p>{orderData?.shippingAddress.address}</p>
                   <p>
-                    {orderData.shippingAddress.city}, {orderData.shippingAddress.state} {orderData.shippingAddress.zipCode}
+                    {orderData?.shippingAddress.city}, {orderData?.shippingAddress.state} {orderData?.shippingAddress.zipCode}
                   </p>
-                  <p>{orderData.shippingAddress.country}</p>
+                  <p>{orderData?.shippingAddress.country}</p>
                   <p className="text-gray-600 mt-2">
-                    Phone: {orderData.customer.phone}
+                    Phone: {orderData?.customer.phone}
                   </p>
                   <p className="text-gray-600">
-                    Email: {orderData.customer.email}
+                    Email: {orderData?.customer.email}
                   </p>
                 </div>
               </CardContent>
@@ -320,24 +338,45 @@ Thank you for shopping with MyCODStore!
               <CardContent className="space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>${orderData.pricing.subtotal.toFixed(2)}</span>
+                  <span>${orderData?.pricing.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping:</span>
                   <span>
-                    {orderData.pricing.shipping === 0 ? (
+                    {orderData?.pricing.shipping === 0 ? (
                       <span className="text-green-600">Free</span>
                     ) : (
-                      `$${orderData.pricing.shipping.toFixed(2)}`
+                      `$${orderData?.pricing.shipping.toFixed(2)}`
                     )}
                   </span>
                 </div>
                 <div className="border-t pt-2">
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total:</span>
-                    <span>${orderData.pricing.total.toFixed(2)}</span>
+                    <span>${orderData?.pricing.total.toFixed(2)}</span>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Track Order Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Package className="h-5 w-5 mr-2 text-blue-600" />
+                  Track Your Order
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Use your tracking code to check the status of your order anytime.
+                </p>
+                <Link to="/track-order">
+                  <Button variant="outline" className="w-full">
+                    <Package className="h-4 w-4 mr-2" />
+                    Track Order
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 

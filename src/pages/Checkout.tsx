@@ -114,6 +114,10 @@ const Checkout = () => {
     return 'ORDER-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
   };
 
+  const generateTrackingCode = () => {
+    return 'TRACK-' + Date.now().toString().slice(-6) + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -123,10 +127,12 @@ const Checkout = () => {
 
     try {
       const orderId = generateOrderId();
+      const trackingCode = generateTrackingCode();
       
       // Create order object
       const orderData = {
         orderId,
+        trackingCode,
         customer: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -170,7 +176,7 @@ const Checkout = () => {
 
       toast({
         title: 'Order Placed Successfully!',
-        description: `Your order ${orderId} has been placed successfully.`,
+        description: `Your order ${orderId} has been placed successfully. Tracking code: ${trackingCode}`,
       });
 
     } catch (error) {

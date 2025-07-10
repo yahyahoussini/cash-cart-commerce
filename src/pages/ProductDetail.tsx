@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Zap, MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
@@ -114,6 +117,46 @@ const ProductDetail = () => {
       });
     }
   };
+
+  const handleBuyNow = (data: any) => {
+    console.log('Buy Now order:', data);
+    // Here you would normally process the order
+    toast({
+      title: 'Order Placed!',
+      description: `Your order for ${product?.name} has been placed successfully. We'll contact you soon.`,
+    });
+    form.reset();
+    setShowBuyNowForm(false);
+  };
+
+  const handleWhatsApp = () => {
+    if (!product) return;
+    
+    const message = `Hi! I'm interested in this product:
+    
+*${product.name}*
+Price: $${product.price}
+${product.originalPrice ? `Original Price: $${product.originalPrice}` : ''}
+
+${product.description}
+
+Please let me know about availability and delivery details.`;
+
+    const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const [showBuyNowForm, setShowBuyNowForm] = useState(false);
+  
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      phone: '',
+      address: '',
+      city: '',
+      quantity: 1
+    }
+  });
 
   if (loading) {
     return (
@@ -282,6 +325,144 @@ const ProductDetail = () => {
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Add to Cart
                 </Button>
+                
+                <Dialog open={showBuyNowForm} onOpenChange={setShowBuyNowForm}>
+                  <DialogTrigger asChild>
+                    <Button
+                      disabled={!product.inStock}
+                      size="lg"
+                      className="flex-1 bg-orange-600 hover:bg-orange-700"
+                    >
+                      <Zap className="h-5 w-5 mr-2" />
+                      Buy Now
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Complete Your Order</DialogTitle>
+                    </DialogHeader>
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(handleBuyNow)} className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Full Name</FormLabel>
+                              <FormControl>
+                                <input
+                                  {...field}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Enter your full name"
+                                  required
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="phone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phone Number</FormLabel>
+                              <FormControl>
+                                <input
+                                  {...field}
+                                  type="tel"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Enter your phone number"
+                                  required
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="address"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Address</FormLabel>
+                              <FormControl>
+                                <textarea
+                                  {...field}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Enter your complete address"
+                                  rows={3}
+                                  required
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="city"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>City</FormLabel>
+                              <FormControl>
+                                <input
+                                  {...field}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Enter your city"
+                                  required
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-medium">{product.name}</span>
+                            <span>${product.price}</span>
+                          </div>
+                          <div className="flex justify-between items-center mb-2">
+                            <span>Quantity:</span>
+                            <span>{quantity}</span>
+                          </div>
+                          <div className="flex justify-between items-center font-bold text-lg border-t pt-2">
+                            <span>Total:</span>
+                            <span>${(product.price * quantity).toFixed(2)}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex space-x-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setShowBuyNowForm(false)}
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                          <Button type="submit" className="flex-1">
+                            Place Order
+                          </Button>
+                        </div>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+
+                <Button
+                  onClick={handleWhatsApp}
+                  size="lg"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <MessageCircle className="h-5 w-5 mr-2" />
+                  WhatsApp
+                </Button>
+                
                 <Button variant="outline" size="lg">
                   <Heart className="h-5 w-5" />
                 </Button>

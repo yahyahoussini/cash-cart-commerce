@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 
 const Header = () => {
-  const { state } = useCart();
+  const { state, getTotalItems } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigation = [
@@ -16,6 +16,8 @@ const Header = () => {
     { name: 'Contact', href: '/contact' },
     { name: 'Track Order', href: '/track-order' },
   ];
+
+  const totalItems = getTotalItems();
 
   return (
     <header className="bg-white shadow-sm border-b">
@@ -45,9 +47,9 @@ const Header = () => {
             <Link to="/cart">
               <Button variant="outline" size="sm" className="relative">
                 <ShoppingCart className="h-4 w-4" />
-                {state.itemCount > 0 && (
+                {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {state.itemCount}
+                    {totalItems}
                   </span>
                 )}
               </Button>

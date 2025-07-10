@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -15,17 +14,11 @@ import { useCart } from '@/context/CartContext';
 import { toast } from '@/hooks/use-toast';
 
 interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
+  fullName: string;
   phone: string;
-  address: string;
   city: string;
-  state: string;
-  zipCode: string;
-  country: string;
+  location: string;
   notes: string;
-  paymentMethod: string;
   agreeToTerms: boolean;
 }
 
@@ -34,17 +27,11 @@ const Checkout = () => {
   const { state, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
+    fullName: '',
     phone: '',
-    address: '',
     city: '',
-    state: '',
-    zipCode: '',
-    country: '',
+    location: '',
     notes: '',
-    paymentMethod: 'cod',
     agreeToTerms: false
   });
 
@@ -60,10 +47,7 @@ const Checkout = () => {
   };
 
   const validateForm = (): boolean => {
-    const requiredFields = [
-      'firstName', 'lastName', 'email', 'phone', 
-      'address', 'city', 'state', 'zipCode', 'country'
-    ];
+    const requiredFields = ['fullName', 'phone', 'city', 'location'];
     
     for (const field of requiredFields) {
       if (!formData[field as keyof FormData]) {
@@ -80,17 +64,6 @@ const Checkout = () => {
       toast({
         title: 'Terms and Conditions',
         description: 'Please agree to the terms and conditions to continue.',
-        variant: 'destructive'
-      });
-      return false;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: 'Invalid Email',
-        description: 'Please enter a valid email address.',
         variant: 'destructive'
       });
       return false;
@@ -134,17 +107,10 @@ const Checkout = () => {
         orderId,
         trackingCode,
         customer: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
+          fullName: formData.fullName,
           phone: formData.phone,
-        },
-        shippingAddress: {
-          address: formData.address,
           city: formData.city,
-          state: formData.state,
-          zipCode: formData.zipCode,
-          country: formData.country,
+          location: formData.location,
         },
         items: state.items,
         pricing: {
@@ -152,7 +118,7 @@ const Checkout = () => {
           shipping,
           total
         },
-        paymentMethod: formData.paymentMethod,
+        paymentMethod: 'cod',
         notes: formData.notes,
         status: 'pending',
         createdAt: new Date().toISOString()
@@ -230,109 +196,58 @@ const Checkout = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Shipping Information */}
+              {/* Customer Information */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Truck className="h-5 w-5 mr-2" />
-                    Shipping Information
+                    Customer Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="firstName">First Name *</Label>
-                      <Input
-                        id="firstName"
-                        value={formData.firstName}
-                        onChange={(e) => handleInputChange('firstName', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Last Name *</Label>
-                      <Input
-                        id="lastName"
-                        value={formData.lastName}
-                        onChange={(e) => handleInputChange('lastName', e.target.value)}
-                        required
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="fullName">Full Name *</Label>
+                    <Input
+                      id="fullName"
+                      value={formData.fullName}
+                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      placeholder="Enter your full name"
+                      required
+                    />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="email">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-
                   <div>
-                    <Label htmlFor="address">Address *</Label>
+                    <Label htmlFor="phone">Phone Number *</Label>
                     <Input
-                      id="address"
-                      value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      placeholder="Enter your phone number"
                       required
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="city">City *</Label>
-                      <Input
-                        id="city"
-                        value={formData.city}
-                        onChange={(e) => handleInputChange('city', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State *</Label>
-                      <Input
-                        id="state"
-                        value={formData.state}
-                        onChange={(e) => handleInputChange('state', e.target.value)}
-                        required
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="city">City *</Label>
+                    <Input
+                      id="city"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      placeholder="Enter your city"
+                      required
+                    />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="zipCode">ZIP Code *</Label>
-                      <Input
-                        id="zipCode"
-                        value={formData.zipCode}
-                        onChange={(e) => handleInputChange('zipCode', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="country">Country *</Label>
-                      <Input
-                        id="country"
-                        value={formData.country}
-                        onChange={(e) => handleInputChange('country', e.target.value)}
-                        required
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="location">Location/Address *</Label>
+                    <Textarea
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      placeholder="Enter your detailed address or location"
+                      required
+                    />
                   </div>
 
                   <div>
@@ -356,25 +271,15 @@ const Checkout = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <RadioGroup
-                    value={formData.paymentMethod}
-                    onValueChange={(value) => handleInputChange('paymentMethod', value)}
-                  >
-                    <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                      <RadioGroupItem value="cod" id="cod" />
-                      <Label htmlFor="cod" className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">Cash on Delivery (COD)</p>
-                            <p className="text-sm text-gray-600">
-                              Pay when you receive your order
-                            </p>
-                          </div>
-                          <Shield className="h-5 w-5 text-green-600" />
-                        </div>
-                      </Label>
+                  <div className="flex items-center space-x-2 p-4 border rounded-lg bg-green-50">
+                    <Shield className="h-5 w-5 text-green-600" />
+                    <div>
+                      <p className="font-medium">Cash on Delivery (COD)</p>
+                      <p className="text-sm text-gray-600">
+                        Pay when you receive your order
+                      </p>
                     </div>
-                  </RadioGroup>
+                  </div>
                 </CardContent>
               </Card>
 

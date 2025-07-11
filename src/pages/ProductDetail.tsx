@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Zap, MessageCircle, X } from 'lucide-react';
+import { ArrowLeft, Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Zap, MessageCircle, X, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -155,7 +156,13 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (product) {
-      addToCart(product, quantity);
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.thumbnail,
+        quantity: quantity
+      });
       toast({
         title: 'Item added to cart',
         description: 'Check your cart to complete your order.',
@@ -199,7 +206,7 @@ const ProductDetail = () => {
           phone: data.phone,
         },
         shippingAddress: {
-          address: data.location, // Fix: use 'location' field from form
+          address: data.location, // Use 'location' field from form as 'address'
           city: data.city,
           state: '', // Not collected in our simplified form
           zipCode: '', // Not collected in our simplified form
@@ -210,7 +217,7 @@ const ProductDetail = () => {
           name: product.name,
           price: product.price,
           quantity: quantity,
-          image: product.image
+          image: product.thumbnail // Use thumbnail instead of image
         }],
         pricing: {
           subtotal,

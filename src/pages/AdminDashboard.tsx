@@ -224,7 +224,7 @@ const AdminDashboard = () => {
   };
 
   // Calculate dashboard stats
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+  const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
   const totalOrders = orders.length;
   const pendingOrders = orders.filter(order => order.status === 'pending').length;
   const totalProducts = products.length;
@@ -347,7 +347,7 @@ const AdminDashboard = () => {
                               </p>
                             </div>
                             <div>
-                              <p className="font-medium">${order.total.toFixed(2)}</p>
+                              <p className="font-medium">${(order.total || 0).toFixed(2)}</p>
                               <p className="text-sm text-gray-600">
                                 {order.items.length} item(s)
                               </p>
@@ -403,7 +403,7 @@ const AdminDashboard = () => {
                                       {selectedOrder.items.map((item, index) => (
                                         <div key={index} className="flex justify-between">
                                           <span>{item.name} (x{item.quantity})</span>
-                                          <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                          <span>${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                         </div>
                                       ))}
                                     </div>
@@ -411,7 +411,7 @@ const AdminDashboard = () => {
                                   <div className="border-t pt-2">
                                     <div className="flex justify-between font-bold">
                                       <span>Total:</span>
-                                      <span>${selectedOrder.total.toFixed(2)}</span>
+                                      <span>${(selectedOrder.total || 0).toFixed(2)}</span>
                                     </div>
                                   </div>
                                 </div>

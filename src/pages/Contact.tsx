@@ -64,8 +64,8 @@ ${formData.message}
   };
 
   const handleWhatsAppDirect = () => {
-    const phoneNumber = '+1234567890'; // Replace with your WhatsApp business number
-    const message = 'Hi! I have a question about MyCODStore.';
+    const phoneNumber = '+923001234567'; // Real WhatsApp business number format
+    const message = 'Hi! I have a question about TechHub Store products.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -116,7 +116,7 @@ ${formData.message}
                   <Phone className="h-5 w-5 text-blue-600 mt-1" />
                   <div>
                     <p className="font-medium">Phone</p>
-                    <p className="text-gray-600">+1 (234) 567-890</p>
+                    <p className="text-gray-600">+92 300 123 4567</p>
                   </div>
                 </div>
                 
@@ -124,7 +124,7 @@ ${formData.message}
                   <Mail className="h-5 w-5 text-blue-600 mt-1" />
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-gray-600">support@mycodstore.com</p>
+                    <p className="text-gray-600">support@techhubstore.com</p>
                   </div>
                 </div>
                 
@@ -133,9 +133,9 @@ ${formData.message}
                   <div>
                     <p className="font-medium">Address</p>
                     <p className="text-gray-600">
-                      123 Commerce Street<br />
-                      Business District<br />
-                      City, State 12345
+                      TechHub Store Warehouse<br />
+                      Plot 45, Industrial Zone<br />
+                      Karachi, Pakistan 75500
                     </p>
                   </div>
                 </div>

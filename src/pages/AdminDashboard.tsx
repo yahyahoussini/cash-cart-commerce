@@ -76,30 +76,70 @@ const AdminDashboard = () => {
 
   const loadData = async () => {
     try {
-      // Load mock products
+      // Load real products
       const mockProducts: Product[] = [
         {
           id: '1',
-          name: 'Premium Wireless Headphones',
-          price: 299,
-          category: 'Electronics',
+          name: 'Apple iPhone 15 Pro',
+          price: 1199,
+          category: 'Smartphones',
           inStock: true,
           image: '/placeholder.svg'
         },
         {
           id: '2',
-          name: 'Smart Fitness Watch',
-          price: 199,
+          name: 'Samsung Galaxy Watch 6',
+          price: 329,
           category: 'Wearables',
           inStock: true,
           image: '/placeholder.svg'
         },
         {
           id: '3',
-          name: 'Bluetooth Speaker',
-          price: 89,
+          name: 'Sony WH-1000XM5 Headphones',
+          price: 399,
           category: 'Audio',
+          inStock: true,
+          image: '/placeholder.svg'
+        },
+        {
+          id: '4',
+          name: 'iPad Pro 12.9"',
+          price: 1099,
+          category: 'Tablets',
+          inStock: true,
+          image: '/placeholder.svg'
+        },
+        {
+          id: '5',
+          name: 'MacBook Air M2',
+          price: 1199,
+          category: 'Laptops',
           inStock: false,
+          image: '/placeholder.svg'
+        },
+        {
+          id: '6',
+          name: 'AirPods Pro 2nd Gen',
+          price: 249,
+          category: 'Audio',
+          inStock: true,
+          image: '/placeholder.svg'
+        },
+        {
+          id: '7',
+          name: 'Nintendo Switch OLED',
+          price: 349,
+          category: 'Gaming',
+          inStock: true,
+          image: '/placeholder.svg'
+        },
+        {
+          id: '8',
+          name: 'Canon EOS R8 Camera',
+          price: 1499,
+          category: 'Cameras',
+          inStock: true,
           image: '/placeholder.svg'
         }
       ];
@@ -425,11 +465,14 @@ const AdminDashboard = () => {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Electronics">Electronics</SelectItem>
+                        <SelectItem value="Smartphones">Smartphones</SelectItem>
+                        <SelectItem value="Tablets">Tablets</SelectItem>
+                        <SelectItem value="Laptops">Laptops</SelectItem>
                         <SelectItem value="Wearables">Wearables</SelectItem>
                         <SelectItem value="Audio">Audio</SelectItem>
                         <SelectItem value="Gaming">Gaming</SelectItem>
-                        <SelectItem value="Home">Home</SelectItem>
+                        <SelectItem value="Cameras">Cameras</SelectItem>
+                        <SelectItem value="Accessories">Accessories</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

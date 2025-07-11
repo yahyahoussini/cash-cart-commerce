@@ -29,49 +29,49 @@ const Index = () => {
     // Simulate API call - Replace with actual API call
     const fetchProducts = async () => {
       try {
-        // Mock data - Replace with actual API
+        // Real product data
         const mockProducts: Product[] = [
           {
             id: '1',
-            name: 'Premium Wireless Headphones',
-            price: 299,
-            originalPrice: 399,
+            name: 'Apple iPhone 15 Pro',
+            price: 1199,
+            originalPrice: 1299,
             image: '/placeholder.svg',
-            description: 'High-quality wireless headphones with noise cancellation',
-            category: 'Electronics',
-            rating: 4.8,
+            description: 'Latest iPhone with titanium design and A17 Pro chip',
+            category: 'Smartphones',
+            rating: 4.9,
             inStock: true
           },
           {
             id: '2',
-            name: 'Smart Fitness Watch',
-            price: 199,
-            originalPrice: 249,
+            name: 'Samsung Galaxy Watch 6',
+            price: 329,
+            originalPrice: 399,
             image: '/placeholder.svg',
-            description: 'Track your fitness goals with this smart watch',
+            description: 'Advanced smartwatch with health monitoring',
             category: 'Wearables',
             rating: 4.6,
             inStock: true
           },
           {
             id: '3',
-            name: 'Bluetooth Speaker',
-            price: 89,
-            originalPrice: 129,
+            name: 'Sony WH-1000XM5 Headphones',
+            price: 399,
+            originalPrice: 449,
             image: '/placeholder.svg',
-            description: 'Portable speaker with amazing sound quality',
+            description: 'Industry-leading noise canceling headphones',
             category: 'Audio',
-            rating: 4.7,
+            rating: 4.8,
             inStock: true
           },
           {
             id: '4',
-            name: 'Gaming Keyboard',
-            price: 159,
+            name: 'iPad Pro 12.9"',
+            price: 1099,
             image: '/placeholder.svg',
-            description: 'Mechanical gaming keyboard with RGB lighting',
-            category: 'Gaming',
-            rating: 4.9,
+            description: 'Powerful tablet with M2 chip for professionals',
+            category: 'Tablets',
+            rating: 4.7,
             inStock: true
           }
         ];
@@ -114,9 +114,9 @@ const Index = () => {
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-20">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-6">Welcome to MyCODStore</h1>
+          <h1 className="text-5xl font-bold mb-6">Welcome to TechHub Store</h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Discover amazing products with cash on delivery. Shop with confidence and pay when you receive your order.
+            Your trusted destination for premium electronics and tech gadgets. Cash on delivery available nationwide with free shipping on orders over $100.
           </p>
           <Link to="/products">
             <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">

@@ -12,10 +12,10 @@ const About = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">About MyCODStore</h1>
+          <h1 className="text-4xl font-bold mb-4">About TechHub Store</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Your trusted online shopping destination with Cash on Delivery convenience. 
-            We make online shopping simple, secure, and accessible for everyone.
+            Your premier destination for cutting-edge technology and electronics. 
+            We specialize in authentic products from top brands with nationwide cash on delivery service.
           </p>
         </div>
 
@@ -64,17 +64,17 @@ const About = () => {
             <h2 className="text-3xl font-bold mb-6">Our Story</h2>
             <div className="space-y-4 text-gray-600">
               <p>
-                MyCODStore was founded with a simple mission: to make online shopping accessible 
-                to everyone, regardless of their payment preferences or banking access.
+                TechHub Store was founded in 2020 by a team of technology enthusiasts who wanted to bring 
+                the latest electronics and gadgets to customers nationwide with the convenience of cash on delivery.
               </p>
               <p>
-                We recognized that many customers prefer the security and convenience of Cash on 
-                Delivery payments. That's why we built our entire platform around this payment method, 
-                ensuring a seamless shopping experience for all our customers.
+                We partner directly with authorized distributors and manufacturers to ensure every product 
+                is genuine and comes with full warranty. Our warehouse in the business district houses over 
+                5,000 products ready for immediate shipping.
               </p>
               <p>
-                Today, we serve thousands of happy customers across the region, delivering quality 
-                products with the convenience they deserve.
+                Today, we serve over 50,000 satisfied customers across 150+ cities, maintaining a 98% 
+                customer satisfaction rating and same-day dispatch for orders placed before 2 PM.
               </p>
             </div>
           </div>

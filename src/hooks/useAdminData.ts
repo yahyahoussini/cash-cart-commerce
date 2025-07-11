@@ -11,6 +11,14 @@ export const useAdminData = () => {
 
   const loadData = async () => {
     try {
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('User not authenticated');
+        setLoading(false);
+        return;
+      }
+
       // Load products from Supabase
       const { data: productsData, error: productsError } = await supabase
         .from('products')
@@ -19,6 +27,11 @@ export const useAdminData = () => {
 
       if (productsError) {
         console.error('Error loading products:', productsError);
+        toast({
+          title: 'Error',
+          description: 'Failed to load products. Please check your admin permissions.',
+          variant: 'destructive'
+        });
       } else {
         setProducts(productsData || []);
       }
@@ -31,6 +44,11 @@ export const useAdminData = () => {
 
       if (ordersError) {
         console.error('Error loading orders:', ordersError);
+        toast({
+          title: 'Error',
+          description: 'Failed to load orders. Please check your admin permissions.',
+          variant: 'destructive'
+        });
       } else {
         setOrders(ordersData || []);
       }

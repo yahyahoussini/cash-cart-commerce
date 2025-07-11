@@ -33,7 +33,7 @@ const Products = () => {
   const [searchParams] = useSearchParams();
   const { addToCart } = useCart();
 
-  const categories = ['all', 'Electronics', 'Wearables', 'Audio', 'Gaming', 'Home', 'Fashion'];
+  const categories = ['all', 'Soins Visage', 'Soins Corps', 'Masques', 'Maquillage', 'Cheveux', 'Bio Certifié'];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -42,66 +42,66 @@ const Products = () => {
         const mockProducts: Product[] = [
           {
             id: '1',
-            name: 'Premium Wireless Headphones',
-            price: 299,
-            originalPrice: 399,
+            name: 'Sérum Vitamine C Bio - Anti-Âge',
+            price: 280,
+            originalPrice: 350,
             image: '/placeholder.svg',
-            description: 'High-quality wireless headphones with noise cancellation and 30-hour battery life',
-            category: 'Electronics',
-            rating: 4.8,
+            description: 'Sérum anti-âge bio à la vitamine C pure, certifié ECOCERT. Illumine et raffermit la peau naturellement.',
+            category: 'Soins Visage',
+            rating: 4.9,
             inStock: true
           },
           {
             id: '2',
-            name: 'Smart Fitness Watch',
-            price: 199,
-            originalPrice: 249,
+            name: 'Crème Hydratante Argan Bio Maroc',
+            price: 180,
+            originalPrice: 220,
             image: '/placeholder.svg',
-            description: 'Track your fitness goals with GPS, heart rate monitor, and sleep tracking',
-            category: 'Wearables',
-            rating: 4.6,
+            description: 'Crème hydratante à l\'huile d\'argan bio du Maroc. Nourrissante et réparatrice pour tous types de peau.',
+            category: 'Soins Corps',
+            rating: 4.8,
             inStock: true
           },
           {
             id: '3',
-            name: 'Bluetooth Speaker',
-            price: 89,
-            originalPrice: 129,
+            name: 'Masque Purifiant Ghassoul Maroc',
+            price: 95,
+            originalPrice: 125,
             image: '/placeholder.svg',
-            description: 'Portable speaker with amazing sound quality and waterproof design',
-            category: 'Audio',
+            description: 'Masque visage au ghassoul authentique du Maroc. Purifie et détoxifie en profondeur.',
+            category: 'Masques',
             rating: 4.7,
             inStock: true
           },
           {
             id: '4',
-            name: 'Gaming Keyboard',
-            price: 159,
+            name: 'Rouge à Lèvres Bio Naturel',
+            price: 120,
             image: '/placeholder.svg',
-            description: 'Mechanical gaming keyboard with RGB lighting and programmable keys',
-            category: 'Gaming',
-            rating: 4.9,
+            description: 'Rouge à lèvres bio avec des pigments naturels. Longue tenue et hydratation optimale.',
+            category: 'Maquillage',
+            rating: 4.6,
             inStock: true
           },
           {
             id: '5',
-            name: 'Smart Home Camera',
-            price: 129,
+            name: 'Shampooing Solide Bio Argan',
+            price: 85,
             image: '/placeholder.svg',
-            description: '1080p security camera with night vision and mobile app control',
-            category: 'Home',
+            description: 'Shampooing solide enrichi à l\'huile d\'argan bio. Écologique et nourrissant.',
+            category: 'Cheveux',
             rating: 4.5,
             inStock: true
           },
           {
             id: '6',
-            name: 'Wireless Earbuds',
-            price: 79,
-            originalPrice: 99,
+            name: 'Eau de Rose Bio Maroc',
+            price: 65,
+            originalPrice: 80,
             image: '/placeholder.svg',
-            description: 'True wireless earbuds with active noise cancellation',
-            category: 'Audio',
-            rating: 4.4,
+            description: 'Eau de rose pure et bio du Maroc. Tonifie et apaise la peau délicatement.',
+            category: 'Soins Visage',
+            rating: 4.8,
             inStock: false
           }
         ];
@@ -188,8 +188,8 @@ const Products = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">Our Products</h1>
-          <p className="text-gray-600">Discover our amazing collection of products</p>
+          <h1 className="text-3xl font-bold mb-4">Cosmétiques Bio & Clean Beauty Maroc</h1>
+          <p className="text-gray-600">Découvrez notre collection exclusive de cosmétiques bio, naturels et clean beauty avec livraison partout au Maroc</p>
         </div>
 
         {/* Filters and Controls */}

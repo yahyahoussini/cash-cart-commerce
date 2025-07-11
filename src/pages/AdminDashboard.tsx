@@ -66,6 +66,14 @@ interface ProductSales {
   rank: number;
 }
 
+interface TrafficSource {
+  source: string;
+  visitors: number;
+  percentage: number;
+  icon: string;
+  color: string;
+}
+
 interface Order {
   orderId: string;
   customer: {
@@ -371,6 +379,17 @@ const AdminDashboard = () => {
     { productId: '6', productName: 'AirPods Pro 2nd Gen', category: 'Audio', totalSold: 48, revenue: 11952, rank: 6 },
     { productId: '8', productName: 'Canon EOS R8 Camera', category: 'Cameras', totalSold: 28, revenue: 41972, rank: 7 },
     { productId: '5', productName: 'MacBook Air M2', category: 'Laptops', totalSold: 15, revenue: 17985, rank: 8 }
+  ];
+
+  const trafficSources: TrafficSource[] = [
+    { source: 'Google Search', visitors: 2850, percentage: 42.3, icon: '🔍', color: 'from-green-500 to-green-600' },
+    { source: 'Facebook', visitors: 1680, percentage: 24.9, icon: '📘', color: 'from-blue-500 to-blue-600' },
+    { source: 'Instagram', visitors: 980, percentage: 14.5, icon: '📷', color: 'from-pink-500 to-purple-600' },
+    { source: 'TikTok', visitors: 520, percentage: 7.7, icon: '🎵', color: 'from-black to-gray-600' },
+    { source: 'Direct Link', visitors: 420, percentage: 6.2, icon: '🔗', color: 'from-gray-500 to-gray-600' },
+    { source: 'YouTube', visitors: 180, percentage: 2.7, icon: '📺', color: 'from-red-500 to-red-600' },
+    { source: 'Email Campaign', visitors: 95, percentage: 1.4, icon: '📧', color: 'from-indigo-500 to-indigo-600' },
+    { source: 'Other', visitors: 25, percentage: 0.3, icon: '🌐', color: 'from-purple-500 to-purple-600' }
   ];
 
   // Calculate dashboard stats
@@ -1051,6 +1070,72 @@ const AdminDashboard = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Traffic Sources Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <TrendingUp className="h-5 w-5 mr-2" />
+                    Visitor Traffic Sources
+                  </CardTitle>
+                  <CardDescription>
+                    Where your visitors are coming from
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {trafficSources.map((source, index) => (
+                      <div key={source.source} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                        <div className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-all duration-200">
+                          <div className="flex items-center space-x-4">
+                            <div className={`w-12 h-12 bg-gradient-to-br ${source.color} rounded-lg flex items-center justify-center text-white text-xl`}>
+                              {source.icon}
+                            </div>
+                            <div>
+                              <p className="font-medium">{source.source}</p>
+                              <p className="text-sm text-gray-500">{source.visitors.toLocaleString()} visitors</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-gray-900">
+                              {source.percentage}%
+                            </div>
+                            <div className="w-24 h-3 bg-gray-200 rounded-full mt-2">
+                              <div 
+                                className={`h-3 bg-gradient-to-r ${source.color} rounded-full transition-all duration-700`}
+                                style={{ width: `${source.percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Traffic Sources Summary */}
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium mb-3">Traffic Summary</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-500">Organic Search</p>
+                        <p className="font-bold text-green-600">42.3%</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Social Media</p>
+                        <p className="font-bold text-blue-600">47.1%</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Direct Traffic</p>
+                        <p className="font-bold text-purple-600">6.2%</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Email & Other</p>
+                        <p className="font-bold text-orange-600">4.4%</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Audience Insights */}
               <div className="grid md:grid-cols-3 gap-6">

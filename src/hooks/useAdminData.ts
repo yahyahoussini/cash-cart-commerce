@@ -53,15 +53,22 @@ export const useAdminData = () => {
         setOrders(ordersData || []);
       }
 
-      // Load categories from localStorage (can be moved to Supabase later)
-      const savedCategories = JSON.parse(localStorage.getItem('categories') || JSON.stringify([
-        { id: '1', name: 'electronics', description: 'Electronic devices' },
-        { id: '2', name: 'accessories', description: 'Tech accessories' },
-        { id: '3', name: 'wearables', description: 'Smartwatches and fitness trackers' },
-        { id: '4', name: 'home', description: 'Home and living items' }
-      ]));
+      // Load categories from Supabase
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
 
-      setCategories(savedCategories);
+      if (categoriesError) {
+        console.error('Error loading categories:', categoriesError);
+        toast({
+          title: 'Error',
+          description: 'Failed to load categories. Please check your admin permissions.',
+          variant: 'destructive'
+        });
+      } else {
+        setCategories(categoriesData || []);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -208,7 +215,7 @@ export const useAdminData = () => {
     }
   };
 
-  const addCategory = (categoryForm: any) => {
+  const addCategory = async (categoryForm: any) => {
     if (!categoryForm.name) {
       toast({
         title: 'Missing Information',
@@ -218,31 +225,62 @@ export const useAdminData = () => {
       return;
     }
 
-    const newCategory: Category = {
-      id: Date.now().toString(),
-      name: categoryForm.name,
-      description: categoryForm.description
-    };
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .insert({
+          name: categoryForm.name,
+          description: categoryForm.description
+        })
+        .select()
+        .single();
 
-    const updatedCategories = [...categories, newCategory];
-    setCategories(updatedCategories);
-    localStorage.setItem('categories', JSON.stringify(updatedCategories));
-    
-    toast({
-      title: 'Category Added',
-      description: `${newCategory.name} category has been created.`,
-    });
+      if (error) {
+        throw error;
+      }
+
+      setCategories([...categories, data]);
+      
+      toast({
+        title: 'Category Added',
+        description: `${data.name} category has been created.`,
+      });
+    } catch (error) {
+      console.error('Error adding category:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add category.',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const deleteCategory = (categoryId: string) => {
-    const updatedCategories = categories.filter(c => c.id !== categoryId);
-    setCategories(updatedCategories);
-    localStorage.setItem('categories', JSON.stringify(updatedCategories));
-    
-    toast({
-      title: 'Category Deleted',
-      description: 'Category has been removed successfully.',
-    });
+  const deleteCategory = async (categoryId: string) => {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', categoryId);
+
+      if (error) {
+        throw error;
+      }
+
+      const updatedCategories = categories.filter(c => c.id !== categoryId);
+      setCategories(updatedCategories);
+      
+      toast({
+        title: 'Category Deleted',
+        description: 'Category has been removed successfully.',
+      });
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete category.',
+        variant: 'destructive'
+      });
+    }
   };
 
   useEffect(() => {

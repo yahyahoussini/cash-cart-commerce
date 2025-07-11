@@ -9,7 +9,9 @@ export const AdminAnalytics = () => {
     totalRevenue: 0,
     totalOrders: 0,
     topProducts: [] as any[],
-    avgOrderValue: 0
+    avgOrderValue: 0,
+    cityAnalytics: [] as any[],
+    trafficSources: [] as any[]
   });
 
   useEffect(() => {
@@ -21,12 +23,17 @@ export const AdminAnalytics = () => {
       // Get real orders data
       const { data: orders } = await supabase
         .from('orders')
-        .select('total, created_at, shipping_city');
+        .select('total, created_at, shipping_city, shipping_country');
       
       // Get real products with order items
       const { data: orderItems } = await supabase
         .from('order_items')
         .select('product_name, quantity, product_price');
+
+      // Get website analytics data
+      const { data: analytics } = await supabase
+        .from('website_analytics')
+        .select('city, country, referrer');
 
       if (orders) {
         const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
@@ -48,11 +55,55 @@ export const AdminAnalytics = () => {
           .sort((a, b) => b.revenue - a.revenue)
           .slice(0, 6);
 
+        // Process city analytics from real orders
+        const cityData: { [key: string]: { orders: number, revenue: number, country: string } } = {};
+        orders.forEach(order => {
+          const city = order.shipping_city || 'Unknown';
+          const country = order.shipping_country || 'Morocco';
+          if (!cityData[city]) {
+            cityData[city] = { orders: 0, revenue: 0, country };
+          }
+          cityData[city].orders += 1;
+          cityData[city].revenue += order.total || 0;
+        });
+
+        const cityAnalytics = Object.entries(cityData)
+          .map(([city, data]) => ({
+            city,
+            country: data.country,
+            visitors: Math.floor(data.orders * 1.5), // Estimate visitors from orders
+            orders: data.orders,
+            revenue: data.revenue
+          }))
+          .sort((a, b) => b.revenue - a.revenue)
+          .slice(0, 8);
+
+        // Process traffic sources from analytics
+        const referrerData: { [key: string]: number } = {};
+        analytics?.forEach(entry => {
+          const source = entry.referrer || 'direct';
+          referrerData[source] = (referrerData[source] || 0) + 1;
+        });
+
+        const totalVisitors = analytics?.length || 1;
+        const trafficSources = Object.entries(referrerData)
+          .map(([source, visitors]) => ({
+            source: source.includes('google') ? 'Google Search' :
+                   source.includes('facebook') ? 'Facebook' :
+                   source.includes('instagram') ? 'Instagram' :
+                   source === 'direct' ? 'Direct Link' : 'Other',
+            visitors,
+            percentage: (visitors / totalVisitors) * 100
+          }))
+          .sort((a, b) => b.visitors - a.visitors);
+
         setRealAnalytics({
           totalRevenue,
           totalOrders,
           topProducts,
-          avgOrderValue
+          avgOrderValue,
+          cityAnalytics,
+          trafficSources
         });
       }
     } catch (error) {
@@ -60,7 +111,7 @@ export const AdminAnalytics = () => {
     }
   };
 
-  // Use real data for some analytics, keep mock for demo purposes
+  // Use real data for some analytics, keep demo for some sections
   const cityAnalytics: CityAnalytics[] = [
     { city: 'Casablanca', country: 'Morocco', visitors: 1250, orders: 85, revenue: 12450, coordinates: [33.5731, -7.5898] },
     { city: 'Rabat', country: 'Morocco', visitors: 890, orders: 62, revenue: 8900, coordinates: [34.0209, -6.8416] },
@@ -94,34 +145,38 @@ export const AdminAnalytics = () => {
 
   return (
     <div className="space-y-6">
-      {/* Geographic Analytics (Demo Data) */}
+      {/* Real Geographic Analytics */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <MapPin className="h-5 w-5 mr-2" />
-            Geographic Analytics (Demo)
+            Geographic Analytics
           </CardTitle>
           <CardDescription>
-            Sample geographic data for demonstration purposes
+            Customer distribution by city from real orders
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {cityAnalytics.map((city, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div>
-                    <p className="font-medium">{city.city}, {city.country}</p>
-                    <p className="text-sm text-gray-600">{city.visitors} visitors</p>
+            {realAnalytics.cityAnalytics.length > 0 ? (
+              realAnalytics.cityAnalytics.map((city, index) => (
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div>
+                      <p className="font-medium">{city.city}, {city.country}</p>
+                      <p className="text-sm text-gray-600">{city.visitors} estimated visitors</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">${city.revenue.toFixed(2)}</p>
+                    <p className="text-sm text-gray-600">{city.orders} orders</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium">${city.revenue.toLocaleString()}</p>
-                  <p className="text-sm text-gray-600">{city.orders} orders</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-4">No geographic data available yet.</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -217,39 +272,48 @@ export const AdminAnalytics = () => {
         </CardContent>
       </Card>
 
-      {/* Traffic Sources (Demo Data) */}
+      {/* Real Traffic Sources */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Globe className="h-5 w-5 mr-2" />
-            Traffic Sources (Demo)
+            Traffic Sources
           </CardTitle>
           <CardDescription>
-            Sample traffic source data for demonstration purposes
+            Real visitor sources from analytics data
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {trafficSources.map((source, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{source.icon}</span>
-                  <div>
-                    <p className="font-medium">{source.source}</p>
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div
-                        className={`bg-gradient-to-r ${source.color} h-2 rounded-full`}
-                        style={{ width: `${source.percentage}%` }}
-                      ></div>
+            {realAnalytics.trafficSources.length > 0 ? (
+              realAnalytics.trafficSources.map((source, index) => (
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">
+                      {source.source === 'Google Search' ? '🔍' :
+                       source.source === 'Facebook' ? '📘' :
+                       source.source === 'Instagram' ? '📷' :
+                       source.source === 'Direct Link' ? '🔗' : '🌐'}
+                    </span>
+                    <div>
+                      <p className="font-medium">{source.source}</p>
+                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
+                          style={{ width: `${Math.min(source.percentage, 100)}%` }}
+                        ></div>
+                      </div>
                     </div>
                   </div>
+                  <div className="text-right">
+                    <p className="font-medium">{source.visitors}</p>
+                    <p className="text-sm text-gray-600">{source.percentage.toFixed(1)}%</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium">{source.visitors.toLocaleString()}</p>
-                  <p className="text-sm text-gray-600">{source.percentage}%</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-4">No traffic data available yet.</p>
+            )}
           </div>
         </CardContent>
       </Card>

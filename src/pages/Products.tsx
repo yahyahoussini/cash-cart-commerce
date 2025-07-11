@@ -292,80 +292,83 @@ const Products = () => {
             : 'space-y-4'
           }>
             {filteredProducts.map((product) => (
-              <Card 
-                key={product.id} 
-                className={`hover:shadow-lg transition-shadow ${
-                  viewMode === 'list' ? 'flex' : ''
-                } ${!product.inStock ? 'opacity-75' : ''}`}
-              >
-                <CardHeader className={`p-0 ${viewMode === 'list' ? 'w-48 flex-shrink-0' : ''}`}>
-                  <div className="relative">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className={`object-cover ${
-                        viewMode === 'list' 
-                          ? 'w-full h-48 rounded-l-lg' 
-                          : 'w-full h-48 rounded-t-lg'
-                      }`}
-                    />
-                    {product.originalPrice && (
-                      <Badge className="absolute top-2 left-2 bg-red-500">
-                        Sale
-                      </Badge>
-                    )}
-                    {!product.inStock && (
-                      <Badge className="absolute top-2 right-2 bg-gray-500">
-                        Out of Stock
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className={`p-4 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-between' : ''}`}>
-                  <div>
-                    <CardTitle className="text-lg mb-2">{product.name}</CardTitle>
-                    <CardDescription className="mb-3">
-                      {product.description}
-                    </CardDescription>
-                    <div className="flex items-center mb-3">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="ml-1 text-sm">{product.rating}</span>
-                      <Badge variant="outline" className="ml-2">
-                        {product.category}
-                      </Badge>
+              <Link to={`/product/${product.id}`} key={product.id} className="block">
+                <Card 
+                  className={`hover:shadow-lg transition-shadow cursor-pointer ${
+                    viewMode === 'list' ? 'flex' : ''
+                  } ${!product.inStock ? 'opacity-75' : ''}`}
+                >
+                  <CardHeader className={`p-0 ${viewMode === 'list' ? 'w-48 flex-shrink-0' : ''}`}>
+                    <div className="relative">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className={`object-cover ${
+                          viewMode === 'list' 
+                            ? 'w-full h-48 rounded-l-lg' 
+                            : 'w-full h-48 rounded-t-lg'
+                        }`}
+                      />
+                      {product.originalPrice && (
+                        <Badge className="absolute top-2 left-2 bg-red-500">
+                          Sale
+                        </Badge>
+                      )}
+                      {!product.inStock && (
+                        <Badge className="absolute top-2 right-2 bg-gray-500">
+                          Out of Stock
+                        </Badge>
+                      )}
                     </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <span className="text-2xl font-bold text-blue-600">
-                          ${product.price}
-                        </span>
-                        {product.originalPrice && (
-                          <span className="text-gray-500 line-through ml-2">
-                            ${product.originalPrice}
-                          </span>
-                        )}
+                  </CardHeader>
+                  <CardContent className={`p-4 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-between' : ''}`}>
+                    <div>
+                      <CardTitle className="text-lg mb-2">{product.name}</CardTitle>
+                      <CardDescription className="mb-3">
+                        {product.description}
+                      </CardDescription>
+                      <div className="flex items-center mb-3">
+                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                        <span className="ml-1 text-sm">{product.rating}</span>
+                        <Badge variant="outline" className="ml-2">
+                          {product.category}
+                        </Badge>
                       </div>
                     </div>
-                    <div className={`flex gap-2 ${viewMode === 'list' ? 'flex-row' : 'flex-col sm:flex-row'}`}>
-                      <Link to={`/product/${product.id}`} className="flex-1">
-                        <Button variant="outline" className="w-full">
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <span className="text-2xl font-bold text-blue-600">
+                            ${product.price}
+                          </span>
+                          {product.originalPrice && (
+                            <span className="text-gray-500 line-through ml-2">
+                              ${product.originalPrice}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className={`flex gap-2 ${viewMode === 'list' ? 'flex-row' : 'flex-col sm:flex-row'}`} onClick={(e) => e.stopPropagation()}>
+                        <Button variant="outline" className="flex-1">
                           View Details
                         </Button>
-                      </Link>
-                      <Button
-                        onClick={() => handleAddToCart(product)}
-                        className="flex-1"
-                        disabled={!product.inStock}
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-                      </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleAddToCart(product);
+                          }}
+                          className="flex-1"
+                          disabled={!product.inStock}
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         )}

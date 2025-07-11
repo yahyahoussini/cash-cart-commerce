@@ -29,49 +29,49 @@ const Index = () => {
     // Simulate API call - Replace with actual API call
     const fetchProducts = async () => {
       try {
-        // Real product data
+        // Bio cosmetics product data optimized for Morocco SEO
         const mockProducts: Product[] = [
           {
             id: '1',
-            name: 'Apple iPhone 15 Pro',
-            price: 1199,
-            originalPrice: 1299,
+            name: 'Sérum Vitamine C Bio - Anti-Âge',
+            price: 2800,
+            originalPrice: 3500,
             image: '/placeholder.svg',
-            description: 'Latest iPhone with titanium design and A17 Pro chip',
-            category: 'Smartphones',
+            description: 'Sérum anti-âge bio à la vitamine C pure, certifié ECOCERT. Illumine et raffermit la peau naturellement.',
+            category: 'Soins Visage',
             rating: 4.9,
             inStock: true
           },
           {
             id: '2',
-            name: 'Samsung Galaxy Watch 6',
-            price: 329,
-            originalPrice: 399,
+            name: 'Crème Hydratante Argan Bio Maroc',
+            price: 1800,
+            originalPrice: 2200,
             image: '/placeholder.svg',
-            description: 'Advanced smartwatch with health monitoring',
-            category: 'Wearables',
-            rating: 4.6,
-            inStock: true
-          },
-          {
-            id: '3',
-            name: 'Sony WH-1000XM5 Headphones',
-            price: 399,
-            originalPrice: 449,
-            image: '/placeholder.svg',
-            description: 'Industry-leading noise canceling headphones',
-            category: 'Audio',
+            description: 'Crème hydratante à l\'huile d\'argan bio du Maroc. Nourrissante et réparatrice pour tous types de peau.',
+            category: 'Soins Corps',
             rating: 4.8,
             inStock: true
           },
           {
-            id: '4',
-            name: 'iPad Pro 12.9"',
-            price: 1099,
+            id: '3',
+            name: 'Masque Purifiant Ghassoul Maroc',
+            price: 950,
+            originalPrice: 1250,
             image: '/placeholder.svg',
-            description: 'Powerful tablet with M2 chip for professionals',
-            category: 'Tablets',
+            description: 'Masque visage au ghassoul authentique du Maroc. Purifie et détoxifie en profondeur.',
+            category: 'Masques',
             rating: 4.7,
+            inStock: true
+          },
+          {
+            id: '4',
+            name: 'Rouge à Lèvres Bio Naturel',
+            price: 1200,
+            image: '/placeholder.svg',
+            description: 'Rouge à lèvres bio avec des pigments naturels. Longue tenue et hydratation optimale.',
+            category: 'Maquillage',
+            rating: 4.6,
             inStock: true
           }
         ];
@@ -114,13 +114,13 @@ const Index = () => {
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-20">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-6">Welcome to TechHub Store</h1>
+          <h1 className="text-5xl font-bold mb-6">Bio Cosmétiques Maroc #1 - Clean Beauty Certifiée</h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Your trusted destination for premium electronics and tech gadgets. Cash on delivery available nationwide with free shipping on orders over $100.
+            ⭐ N°1 des cosmétiques bio au Maroc. Produits naturels certifiés ECOCERT avec livraison Cash on Delivery partout au royaume. Argan bio, ghassoul, eau de rose et plus encore.
           </p>
           <Link to="/products">
             <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-              Shop Now
+              Découvrir nos Produits Bio
             </Button>
           </Link>
         </div>
@@ -132,18 +132,18 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <Truck className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Free Delivery</h3>
-              <p className="text-gray-600">Free delivery on orders over $50</p>
+              <h3 className="text-xl font-semibold mb-2">Livraison Gratuite</h3>
+              <p className="text-gray-600">Livraison gratuite partout au Maroc dès 500 DH</p>
             </div>
             <div className="text-center">
               <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Cash on Delivery</h3>
-              <p className="text-gray-600">Pay when you receive your order</p>
+              <p className="text-gray-600">Payez à la livraison en toute sécurité</p>
             </div>
             <div className="text-center">
               <MessageCircle className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">WhatsApp Support</h3>
-              <p className="text-gray-600">Get instant support via WhatsApp</p>
+              <h3 className="text-xl font-semibold mb-2">Support WhatsApp</h3>
+              <p className="text-gray-600">Assistance instantanée via WhatsApp</p>
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@ const Index = () => {
       {/* Featured Products */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Featured Products</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Produits Bio Certifiés ECOCERT</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product) => (
               <Card key={product.id} className="hover:shadow-lg transition-shadow">
@@ -160,12 +160,12 @@ const Index = () => {
                   <div className="relative">
                     <img
                       src={product.image}
-                      alt={product.name}
+                      alt={`${product.name} - Cosmétique bio Maroc`}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
                     {product.originalPrice && (
                       <Badge className="absolute top-2 left-2 bg-red-500">
-                        Sale
+                        Promo
                       </Badge>
                     )}
                   </div>
@@ -182,11 +182,11 @@ const Index = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <span className="text-2xl font-bold text-blue-600">
-                        ${product.price}
+                        {product.price} DH
                       </span>
                       {product.originalPrice && (
                         <span className="text-gray-500 line-through ml-2">
-                          ${product.originalPrice}
+                          {product.originalPrice} DH
                         </span>
                       )}
                     </div>
@@ -194,7 +194,7 @@ const Index = () => {
                   <div className="flex gap-2">
                     <Link to={`/product/${product.id}`} className="flex-1">
                       <Button variant="outline" className="w-full">
-                        View Details
+                        Voir Détails
                       </Button>
                     </Link>
                     <Button
@@ -203,7 +203,7 @@ const Index = () => {
                       disabled={!product.inStock}
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
-                      Add to Cart
+                      Ajouter au Panier
                     </Button>
                   </div>
                 </CardContent>
@@ -212,7 +212,7 @@ const Index = () => {
           </div>
           <div className="text-center mt-12">
             <Link to="/products">
-              <Button size="lg">View All Products</Button>
+              <Button size="lg">Voir Tous les Produits Bio</Button>
             </Link>
           </div>
         </div>

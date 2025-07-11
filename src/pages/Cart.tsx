@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Truck, Shield, MessageCircle } from 'lucide-react';
@@ -32,7 +31,7 @@ const Cart = () => {
     city: '',
     location: '',
     notes: '',
-    agreeToTerms: false
+    agreeToTerms: true
   });
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
@@ -344,7 +343,7 @@ const Cart = () => {
                     />
                   </div>
 
-                  {/* Terms and Conditions */}
+                  {/* Terms and Conditions - Auto-selected */}
                   <div className="flex items-start space-x-2 pt-4">
                     <Checkbox
                       id="terms"
@@ -355,13 +354,13 @@ const Cart = () => {
                     />
                     <Label htmlFor="terms" className="text-sm">
                       I agree to the{' '}
-                      <a href="/terms" className="text-blue-600 hover:underline">
+                      <Link to="/terms" className="text-blue-600 hover:underline">
                         Terms and Conditions
-                      </a>{' '}
+                      </Link>{' '}
                       and{' '}
-                      <a href="/privacy" className="text-blue-600 hover:underline">
+                      <Link to="/privacy" className="text-blue-600 hover:underline">
                         Privacy Policy
-                      </a>
+                      </Link>
                     </Label>
                   </div>
                 </CardContent>

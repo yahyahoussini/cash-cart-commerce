@@ -43,8 +43,8 @@ const Products = () => {
           {
             id: '1',
             name: 'Sérum Vitamine C Bio - Anti-Âge',
-            price: 280,
-            originalPrice: 350,
+            price: 2800,
+            originalPrice: 3500,
             image: '/placeholder.svg',
             description: 'Sérum anti-âge bio à la vitamine C pure, certifié ECOCERT. Illumine et raffermit la peau naturellement.',
             category: 'Soins Visage',
@@ -54,8 +54,8 @@ const Products = () => {
           {
             id: '2',
             name: 'Crème Hydratante Argan Bio Maroc',
-            price: 180,
-            originalPrice: 220,
+            price: 1800,
+            originalPrice: 2200,
             image: '/placeholder.svg',
             description: 'Crème hydratante à l\'huile d\'argan bio du Maroc. Nourrissante et réparatrice pour tous types de peau.',
             category: 'Soins Corps',
@@ -65,8 +65,8 @@ const Products = () => {
           {
             id: '3',
             name: 'Masque Purifiant Ghassoul Maroc',
-            price: 95,
-            originalPrice: 125,
+            price: 950,
+            originalPrice: 1250,
             image: '/placeholder.svg',
             description: 'Masque visage au ghassoul authentique du Maroc. Purifie et détoxifie en profondeur.',
             category: 'Masques',
@@ -76,7 +76,7 @@ const Products = () => {
           {
             id: '4',
             name: 'Rouge à Lèvres Bio Naturel',
-            price: 120,
+            price: 1200,
             image: '/placeholder.svg',
             description: 'Rouge à lèvres bio avec des pigments naturels. Longue tenue et hydratation optimale.',
             category: 'Maquillage',
@@ -86,7 +86,7 @@ const Products = () => {
           {
             id: '5',
             name: 'Shampooing Solide Bio Argan',
-            price: 85,
+            price: 850,
             image: '/placeholder.svg',
             description: 'Shampooing solide enrichi à l\'huile d\'argan bio. Écologique et nourrissant.',
             category: 'Cheveux',
@@ -96,8 +96,8 @@ const Products = () => {
           {
             id: '6',
             name: 'Eau de Rose Bio Maroc',
-            price: 65,
-            originalPrice: 80,
+            price: 650,
+            originalPrice: 800,
             image: '/placeholder.svg',
             description: 'Eau de rose pure et bio du Maroc. Tonifie et apaise la peau délicatement.',
             category: 'Soins Visage',
@@ -240,7 +240,7 @@ const Products = () => {
                   <label className="block text-sm font-medium mb-2">Min Price</label>
                   <Input
                     type="number"
-                    placeholder="$0"
+                    placeholder="0 DH"
                     value={priceRange.min}
                     onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
                     className="text-sm"
@@ -250,7 +250,7 @@ const Products = () => {
                   <label className="block text-sm font-medium mb-2">Max Price</label>
                   <Input
                     type="number"
-                    placeholder="$999"
+                    placeholder="9999 DH"
                     value={priceRange.max}
                     onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
                     className="text-sm"
@@ -366,11 +366,11 @@ const Products = () => {
                       <div className="flex items-center justify-between mb-4">
                         <div>
                           <span className="text-2xl font-bold text-blue-600">
-                            ${product.price}
+                            {product.price} DH
                           </span>
                           {product.originalPrice && (
                             <span className="text-gray-500 line-through ml-2">
-                              ${product.originalPrice}
+                              {product.originalPrice} DH
                             </span>
                           )}
                         </div>

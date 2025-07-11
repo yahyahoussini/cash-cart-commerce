@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Product {
   id: string;
@@ -17,9 +18,8 @@ interface Product {
   image: string;
   description: string;
   category: string;
-  rating: number;
-  inStock: boolean;
-  originalPrice?: number;
+  in_stock: boolean;
+  created_at?: string;
 }
 
 const Products = () => {
@@ -33,80 +33,27 @@ const Products = () => {
   const [searchParams] = useSearchParams();
   const { addToCart } = useCart();
 
-  const categories = ['all', 'Soins Visage', 'Soins Corps', 'Masques', 'Maquillage', 'Cheveux', 'Bio Certifié'];
+  const [categories, setCategories] = useState<string[]>(['all']);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Mock data - Replace with actual API call
-        const mockProducts: Product[] = [
-          {
-            id: '1',
-            name: 'Sérum Vitamine C Bio - Anti-Âge',
-            price: 2800,
-            originalPrice: 3500,
-            image: '/placeholder.svg',
-            description: 'Sérum anti-âge bio à la vitamine C pure, certifié ECOCERT. Illumine et raffermit la peau naturellement.',
-            category: 'Soins Visage',
-            rating: 4.9,
-            inStock: true
-          },
-          {
-            id: '2',
-            name: 'Crème Hydratante Argan Bio Maroc',
-            price: 1800,
-            originalPrice: 2200,
-            image: '/placeholder.svg',
-            description: 'Crème hydratante à l\'huile d\'argan bio du Maroc. Nourrissante et réparatrice pour tous types de peau.',
-            category: 'Soins Corps',
-            rating: 4.8,
-            inStock: true
-          },
-          {
-            id: '3',
-            name: 'Masque Purifiant Ghassoul Maroc',
-            price: 950,
-            originalPrice: 1250,
-            image: '/placeholder.svg',
-            description: 'Masque visage au ghassoul authentique du Maroc. Purifie et détoxifie en profondeur.',
-            category: 'Masques',
-            rating: 4.7,
-            inStock: true
-          },
-          {
-            id: '4',
-            name: 'Rouge à Lèvres Bio Naturel',
-            price: 1200,
-            image: '/placeholder.svg',
-            description: 'Rouge à lèvres bio avec des pigments naturels. Longue tenue et hydratation optimale.',
-            category: 'Maquillage',
-            rating: 4.6,
-            inStock: true
-          },
-          {
-            id: '5',
-            name: 'Shampooing Solide Bio Argan',
-            price: 850,
-            image: '/placeholder.svg',
-            description: 'Shampooing solide enrichi à l\'huile d\'argan bio. Écologique et nourrissant.',
-            category: 'Cheveux',
-            rating: 4.5,
-            inStock: true
-          },
-          {
-            id: '6',
-            name: 'Eau de Rose Bio Maroc',
-            price: 650,
-            originalPrice: 800,
-            image: '/placeholder.svg',
-            description: 'Eau de rose pure et bio du Maroc. Tonifie et apaise la peau délicatement.',
-            category: 'Soins Visage',
-            rating: 4.8,
-            inStock: false
-          }
-        ];
-        setProducts(mockProducts);
-        setFilteredProducts(mockProducts);
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching products:', error);
+          return;
+        }
+
+        setProducts(data || []);
+        setFilteredProducts(data || []);
+        
+        // Extract unique categories
+        const uniqueCategories = ['all', ...new Set((data || []).map(p => p.category).filter(Boolean))];
+        setCategories(uniqueCategories);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -149,8 +96,6 @@ const Products = () => {
           return a.price - b.price;
         case 'price-high':
           return b.price - a.price;
-        case 'rating':
-          return b.rating - a.rating;
         case 'name':
         default:
           return a.name.localeCompare(b.name);
@@ -269,7 +214,7 @@ const Products = () => {
                     <SelectItem value="name">Name A-Z</SelectItem>
                     <SelectItem value="price-low">Price: Low to High</SelectItem>
                     <SelectItem value="price-high">Price: High to Low</SelectItem>
-                    <SelectItem value="rating">Highest Rated</SelectItem>
+                    
                   </SelectContent>
                 </Select>
               </div>
@@ -323,7 +268,7 @@ const Products = () => {
                 <Card 
                   className={`hover:shadow-lg transition-shadow cursor-pointer ${
                     viewMode === 'list' ? 'flex' : ''
-                  } ${!product.inStock ? 'opacity-75' : ''}`}
+                  } ${!product.in_stock ? 'opacity-75' : ''}`}
                 >
                   <CardHeader className={`p-0 ${viewMode === 'list' ? 'w-48 flex-shrink-0' : ''}`}>
                     <div className="relative">
@@ -336,12 +281,7 @@ const Products = () => {
                             : 'w-full h-48 rounded-t-lg'
                         }`}
                       />
-                      {product.originalPrice && (
-                        <Badge className="absolute top-2 left-2 bg-red-500">
-                          Sale
-                        </Badge>
-                      )}
-                      {!product.inStock && (
+                      {!product.in_stock && (
                         <Badge className="absolute top-2 right-2 bg-gray-500">
                           Out of Stock
                         </Badge>
@@ -354,9 +294,7 @@ const Products = () => {
                       <CardDescription className="mb-3">
                         {product.description}
                       </CardDescription>
-                      <div className="flex items-center mb-3">
-                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        <span className="ml-1 text-sm">{product.rating}</span>
+                        <div className="flex items-center mb-3">
                         <Badge variant="outline" className="ml-2">
                           {product.category}
                         </Badge>
@@ -366,13 +304,8 @@ const Products = () => {
                       <div className="flex items-center justify-between mb-4">
                         <div>
                           <span className="text-2xl font-bold text-blue-600">
-                            {product.price} DH
+                            ${product.price}
                           </span>
-                          {product.originalPrice && (
-                            <span className="text-gray-500 line-through ml-2">
-                              {product.originalPrice} DH
-                            </span>
-                          )}
                         </div>
                       </div>
                       <div className={`flex gap-2 ${viewMode === 'list' ? 'flex-row' : 'flex-col sm:flex-row'}`} onClick={(e) => e.stopPropagation()}>
@@ -386,10 +319,10 @@ const Products = () => {
                             handleAddToCart(product);
                           }}
                           className="flex-1"
-                          disabled={!product.inStock}
+                          disabled={!product.in_stock}
                         >
                           <ShoppingCart className="h-4 w-4 mr-2" />
-                          {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                          {product.in_stock ? 'Add to Cart' : 'Out of Stock'}
                         </Button>
                       </div>
                     </div>

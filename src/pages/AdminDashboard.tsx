@@ -31,13 +31,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Product {
   id: string;
   name: string;
   price: number;
   category: string;
-  inStock: boolean;
+  in_stock: boolean;
   image: string;
   description?: string;
 }
@@ -75,19 +76,18 @@ interface TrafficSource {
 }
 
 interface Order {
-  orderId: string;
-  customer: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    city?: string;
-    country?: string;
-  };
-  items: any[];
+  id: string;
+  order_id: string;
+  tracking_code: string;
+  customer_first_name: string;
+  customer_last_name: string;
+  customer_phone: string;
+  customer_email?: string;
+  shipping_city: string;
   total: number;
   status: string;
-  createdAt: string;
+  created_at: string;
+  notes?: string;
 }
 
 const AdminDashboard = () => {
@@ -124,91 +124,38 @@ const AdminDashboard = () => {
 
   const loadData = async () => {
     try {
-      // Load real products
-      const mockProducts: Product[] = [
-        {
-          id: '1',
-          name: 'Apple iPhone 15 Pro',
-          price: 1199,
-          category: 'Smartphones',
-          inStock: true,
-          image: '/placeholder.svg'
-        },
-        {
-          id: '2',
-          name: 'Samsung Galaxy Watch 6',
-          price: 329,
-          category: 'Wearables',
-          inStock: true,
-          image: '/placeholder.svg'
-        },
-        {
-          id: '3',
-          name: 'Sony WH-1000XM5 Headphones',
-          price: 399,
-          category: 'Audio',
-          inStock: true,
-          image: '/placeholder.svg'
-        },
-        {
-          id: '4',
-          name: 'iPad Pro 12.9"',
-          price: 1099,
-          category: 'Tablets',
-          inStock: true,
-          image: '/placeholder.svg'
-        },
-        {
-          id: '5',
-          name: 'MacBook Air M2',
-          price: 1199,
-          category: 'Laptops',
-          inStock: false,
-          image: '/placeholder.svg'
-        },
-        {
-          id: '6',
-          name: 'AirPods Pro 2nd Gen',
-          price: 249,
-          category: 'Audio',
-          inStock: true,
-          image: '/placeholder.svg'
-        },
-        {
-          id: '7',
-          name: 'Nintendo Switch OLED',
-          price: 349,
-          category: 'Gaming',
-          inStock: true,
-          image: '/placeholder.svg'
-        },
-        {
-          id: '8',
-          name: 'Canon EOS R8 Camera',
-          price: 1499,
-          category: 'Cameras',
-          inStock: true,
-          image: '/placeholder.svg'
-        }
-      ];
+      // Load products from Supabase
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      // Load orders from localStorage
-      const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+      if (productsError) {
+        console.error('Error loading products:', productsError);
+      } else {
+        setProducts(productsData || []);
+      }
 
-      // Load categories from localStorage
+      // Load orders from Supabase
+      const { data: ordersData, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (ordersError) {
+        console.error('Error loading orders:', ordersError);
+      } else {
+        setOrders(ordersData || []);
+      }
+
+      // Load categories from localStorage (can be moved to Supabase later)
       const savedCategories = JSON.parse(localStorage.getItem('categories') || JSON.stringify([
-        { id: '1', name: 'Smartphones', description: 'Mobile phones and devices' },
-        { id: '2', name: 'Tablets', description: 'Tablet computers' },
-        { id: '3', name: 'Laptops', description: 'Laptop computers' },
-        { id: '4', name: 'Wearables', description: 'Smartwatches and fitness trackers' },
-        { id: '5', name: 'Audio', description: 'Headphones, speakers, and audio devices' },
-        { id: '6', name: 'Gaming', description: 'Gaming consoles and accessories' },
-        { id: '7', name: 'Cameras', description: 'Digital cameras and photography equipment' },
-        { id: '8', name: 'Accessories', description: 'Various tech accessories' }
+        { id: '1', name: 'electronics', description: 'Electronic devices' },
+        { id: '2', name: 'accessories', description: 'Tech accessories' },
+        { id: '3', name: 'wearables', description: 'Smartwatches and fitness trackers' },
+        { id: '4', name: 'home', description: 'Home and living items' }
       ]));
 
-      setProducts(mockProducts);
-      setOrders(savedOrders);
       setCategories(savedCategories);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -227,20 +174,37 @@ const AdminDashboard = () => {
     navigate('/admin/login');
   };
 
-  const updateOrderStatus = (orderId: string, newStatus: string) => {
-    const updatedOrders = orders.map(order =>
-      order.orderId === orderId ? { ...order, status: newStatus } : order
-    );
-    setOrders(updatedOrders);
-    localStorage.setItem('orders', JSON.stringify(updatedOrders));
-    
-    toast({
-      title: 'Status Updated',
-      description: `Order ${orderId} status updated to ${newStatus}.`,
-    });
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: newStatus })
+        .eq('order_id', orderId);
+
+      if (error) {
+        throw error;
+      }
+
+      const updatedOrders = orders.map(order =>
+        order.order_id === orderId ? { ...order, status: newStatus } : order
+      );
+      setOrders(updatedOrders);
+      
+      toast({
+        title: 'Status Updated',
+        description: `Order ${orderId} status updated to ${newStatus}.`,
+      });
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update order status.',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const addProduct = () => {
+  const addProduct = async () => {
     if (!productForm.name || !productForm.price || !productForm.category) {
       toast({
         title: 'Missing Information',
@@ -250,38 +214,73 @@ const AdminDashboard = () => {
       return;
     }
 
-    const newProduct: Product = {
-      id: Date.now().toString(),
-      name: productForm.name,
-      price: parseFloat(productForm.price),
-      category: productForm.category,
-      inStock: true,
-      image: productForm.image
-    };
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .insert({
+          name: productForm.name,
+          price: parseFloat(productForm.price),
+          category: productForm.category,
+          description: productForm.description,
+          image: productForm.image,
+          in_stock: true
+        })
+        .select()
+        .single();
 
-    setProducts([...products, newProduct]);
-    setProductForm({
-      name: '',
-      price: '',
-      category: '',
-      description: '',
-      image: '/placeholder.svg'
-    });
+      if (error) {
+        throw error;
+      }
 
-    toast({
-      title: 'Product Added',
-      description: `${newProduct.name} has been added successfully.`,
-    });
+      setProducts([data, ...products]);
+      setProductForm({
+        name: '',
+        price: '',
+        category: '',
+        description: '',
+        image: '/placeholder.svg'
+      });
+
+      toast({
+        title: 'Product Added',
+        description: `${data.name} has been added successfully.`,
+      });
+    } catch (error) {
+      console.error('Error adding product:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add product.',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const deleteProduct = (productId: string) => {
-    const updatedProducts = products.filter(p => p.id !== productId);
-    setProducts(updatedProducts);
-    
-    toast({
-      title: 'Product Deleted',
-      description: 'Product has been removed successfully.',
-    });
+  const deleteProduct = async (productId: string) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) {
+        throw error;
+      }
+
+      const updatedProducts = products.filter(p => p.id !== productId);
+      setProducts(updatedProducts);
+      
+      toast({
+        title: 'Product Deleted',
+        description: 'Product has been removed successfully.',
+      });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete product.',
+        variant: 'destructive'
+      });
+    }
   };
 
   const addCategory = () => {
@@ -327,19 +326,44 @@ const AdminDashboard = () => {
     setEditProductForm({ ...product });
   };
 
-  const updateProduct = () => {
+  const updateProduct = async () => {
     if (!editProductForm) return;
     
-    const updatedProducts = products.map(p => 
-      p.id === editProductForm.id ? editProductForm : p
-    );
-    setProducts(updatedProducts);
-    setEditProductForm(null);
-    
-    toast({
-      title: 'Product Updated',
-      description: 'Product has been updated successfully.',
-    });
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({
+          name: editProductForm.name,
+          price: editProductForm.price,
+          category: editProductForm.category,
+          description: editProductForm.description,
+          image: editProductForm.image,
+          in_stock: editProductForm.in_stock
+        })
+        .eq('id', editProductForm.id);
+
+      if (error) {
+        throw error;
+      }
+
+      const updatedProducts = products.map(p => 
+        p.id === editProductForm.id ? editProductForm : p
+      );
+      setProducts(updatedProducts);
+      setEditProductForm(null);
+      
+      toast({
+        title: 'Product Updated',
+        description: 'Product has been updated successfully.',
+      });
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update product.',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, isEdit = false) => {
@@ -461,7 +485,7 @@ const AdminDashboard = () => {
             <CardContent>
               <div className="text-2xl font-bold">{totalProducts}</div>
               <p className="text-xs text-muted-foreground">
-                {products.filter(p => p.inStock).length} in stock
+                {products.filter(p => p.in_stock).length} in stock
               </p>
             </CardContent>
           </Card>
@@ -505,24 +529,24 @@ const AdminDashboard = () => {
                     <p className="text-center text-gray-500 py-8">No orders yet</p>
                   ) : (
                     orders.map((order) => (
-                      <div key={order.orderId} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-4">
-                            <div>
-                              <p className="font-medium">{order.orderId}</p>
-                              <p className="text-sm text-gray-600">
-                                {order.customer.firstName} {order.customer.lastName}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                {new Date(order.createdAt).toLocaleDateString()}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">${(order.total || 0).toFixed(2)}</p>
-                              <p className="text-sm text-gray-600">
-                                {order.items.length} item(s)
-                              </p>
-                            </div>
+                       <div key={order.order_id} className="flex items-center justify-between p-4 border rounded-lg">
+                         <div className="flex-1">
+                           <div className="flex items-center space-x-4">
+                             <div>
+                               <p className="font-medium">{order.order_id}</p>
+                               <p className="text-sm text-gray-600">
+                                 {order.customer_first_name} {order.customer_last_name}
+                               </p>
+                               <p className="text-sm text-gray-600">
+                                 {new Date(order.created_at).toLocaleDateString()}
+                               </p>
+                             </div>
+                             <div>
+                               <p className="font-medium">${(order.total || 0).toFixed(2)}</p>
+                               <p className="text-sm text-gray-600">
+                                 {order.shipping_city}
+                               </p>
+                             </div>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -535,7 +559,7 @@ const AdminDashboard = () => {
                           </Badge>
                           <Select
                             value={order.status}
-                            onValueChange={(value) => updateOrderStatus(order.orderId, value)}
+                            onValueChange={(value) => updateOrderStatus(order.order_id, value)}
                           >
                             <SelectTrigger className="w-32">
                               <SelectValue />
@@ -556,39 +580,34 @@ const AdminDashboard = () => {
                             <DialogContent className="max-w-2xl">
                               <DialogHeader>
                                 <DialogTitle>Order Details</DialogTitle>
-                                <DialogDescription>
-                                  Order ID: {selectedOrder?.orderId}
-                                </DialogDescription>
-                              </DialogHeader>
-                              {selectedOrder && (
-                                <div className="space-y-4">
-                                  <div>
-                                    <h4 className="font-medium mb-2">Customer Information</h4>
-                                    <p>{selectedOrder.customer.firstName} {selectedOrder.customer.lastName}</p>
-                                    <p>{selectedOrder.customer.email}</p>
-                                    <p>{selectedOrder.customer.phone}</p>
-                                  </div>
-                                  <div>
-                                    <h4 className="font-medium mb-2">Items</h4>
-                                    <div className="space-y-2">
-                                      {selectedOrder.items.map((item, index) => (
-                                        <div key={index} className="flex justify-between">
-                                          <span>{item.name} (x{item.quantity})</span>
-                                          <span>${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <div className="border-t pt-2">
-                                    <div className="flex justify-between font-bold">
-                                      <span>Total:</span>
-                                      <span>${(selectedOrder.total || 0).toFixed(2)}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </DialogContent>
-                          </Dialog>
+                                 <DialogDescription>
+                                   Order ID: {selectedOrder?.order_id}
+                                 </DialogDescription>
+                               </DialogHeader>
+                               {selectedOrder && (
+                                 <div className="space-y-4">
+                                   <div>
+                                     <h4 className="font-medium mb-2">Customer Information</h4>
+                                     <p>{selectedOrder.customer_first_name} {selectedOrder.customer_last_name}</p>
+                                     <p>{selectedOrder.customer_email || 'No email'}</p>
+                                     <p>{selectedOrder.customer_phone}</p>
+                                   </div>
+                                   <div>
+                                     <h4 className="font-medium mb-2">Shipping Details</h4>
+                                     <p>City: {selectedOrder.shipping_city}</p>
+                                     <p>Total: ${selectedOrder.total}</p>
+                                     {selectedOrder.notes && <p>Notes: {selectedOrder.notes}</p>}
+                                   </div>
+                                   <div className="border-t pt-2">
+                                     <div className="flex justify-between font-bold">
+                                       <span>Total:</span>
+                                       <span>${(selectedOrder.total || 0).toFixed(2)}</span>
+                                     </div>
+                                   </div>
+                                 </div>
+                                )}
+                             </DialogContent>
+                           </Dialog>
                         </div>
                       </div>
                     ))
@@ -703,8 +722,8 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge variant={product.inStock ? 'default' : 'destructive'}>
-                              {product.inStock ? 'In Stock' : 'Out of Stock'}
+                             <Badge variant={product.in_stock ? 'default' : 'destructive'}>
+                               {product.in_stock ? 'In Stock' : 'Out of Stock'}
                             </Badge>
                             <Dialog>
                               <DialogTrigger asChild>

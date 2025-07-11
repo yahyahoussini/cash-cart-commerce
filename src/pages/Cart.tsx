@@ -12,6 +12,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FormData {
   fullName: string;
@@ -111,22 +112,67 @@ const Cart = () => {
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
       
-      // Create order object with the correct structure expected by OrderConfirmation
-      const orderData = {
+      // Create order in Supabase
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          order_id: orderId,
+          tracking_code: trackingCode,
+          customer_first_name: firstName,
+          customer_last_name: lastName,
+          customer_phone: formData.phone,
+          customer_email: '',
+          shipping_address: formData.location,
+          shipping_city: formData.city,
+          shipping_state: '',
+          shipping_zip_code: '',
+          shipping_country: '',
+          subtotal: subtotal,
+          shipping_cost: shipping,
+          total: total,
+          payment_method: 'cod',
+          status: 'pending',
+          notes: formData.notes
+        })
+        .select()
+        .single();
+
+      if (orderError) {
+        throw new Error(orderError.message);
+      }
+
+      // Create order items
+      const orderItems = state.items.map(item => ({
+        order_id: orderData.id,
+        product_name: item.name,
+        product_price: item.price,
+        product_image: item.image,
+        quantity: item.quantity
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) {
+        throw new Error(itemsError.message);
+      }
+
+      const orderResponse = {
         orderId,
         trackingCode,
         customer: {
           firstName,
           lastName,
-          email: '', // Not collected in our simplified form
+          email: '',
           phone: formData.phone,
         },
         shippingAddress: {
           address: formData.location,
           city: formData.city,
-          state: '', // Not collected in our simplified form
-          zipCode: '', // Not collected in our simplified form
-          country: '', // Not collected in our simplified form
+          state: '',
+          zipCode: '',
+          country: '',
         },
         items: state.items,
         pricing: {
@@ -140,20 +186,12 @@ const Cart = () => {
         notes: formData.notes
       };
 
-      // Simulate API call - Replace with actual API endpoint
-      console.log('Creating order:', orderData);
-      
-      // Store order in localStorage (simulate database)
-      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-      existingOrders.push(orderData);
-      localStorage.setItem('orders', JSON.stringify(existingOrders));
-
       // Clear cart
       clearCart();
 
       // Navigate to confirmation page
       navigate(`/order-confirmation/${orderId}`, { 
-        state: { orderData }
+        state: { orderData: orderResponse }
       });
 
       toast({

@@ -13,7 +13,10 @@ import {
   LogOut,
   BarChart3,
   TrendingUp,
-  Calendar
+  Calendar,
+  Upload,
+  FolderPlus,
+  Tags
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,6 +36,13 @@ interface Product {
   category: string;
   inStock: boolean;
   image: string;
+  description?: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
 }
 
 interface Order {
@@ -53,8 +63,10 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productForm, setProductForm] = useState({
     name: '',
     price: '',
@@ -62,6 +74,11 @@ const AdminDashboard = () => {
     description: '',
     image: '/placeholder.svg'
   });
+  const [categoryForm, setCategoryForm] = useState({
+    name: '',
+    description: ''
+  });
+  const [editProductForm, setEditProductForm] = useState<Product | null>(null);
 
   useEffect(() => {
     // Check admin authentication
@@ -147,8 +164,21 @@ const AdminDashboard = () => {
       // Load orders from localStorage
       const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
 
+      // Load categories from localStorage
+      const savedCategories = JSON.parse(localStorage.getItem('categories') || JSON.stringify([
+        { id: '1', name: 'Smartphones', description: 'Mobile phones and devices' },
+        { id: '2', name: 'Tablets', description: 'Tablet computers' },
+        { id: '3', name: 'Laptops', description: 'Laptop computers' },
+        { id: '4', name: 'Wearables', description: 'Smartwatches and fitness trackers' },
+        { id: '5', name: 'Audio', description: 'Headphones, speakers, and audio devices' },
+        { id: '6', name: 'Gaming', description: 'Gaming consoles and accessories' },
+        { id: '7', name: 'Cameras', description: 'Digital cameras and photography equipment' },
+        { id: '8', name: 'Accessories', description: 'Various tech accessories' }
+      ]));
+
       setProducts(mockProducts);
       setOrders(savedOrders);
+      setCategories(savedCategories);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -221,6 +251,80 @@ const AdminDashboard = () => {
       title: 'Product Deleted',
       description: 'Product has been removed successfully.',
     });
+  };
+
+  const addCategory = () => {
+    if (!categoryForm.name) {
+      toast({
+        title: 'Missing Information',
+        description: 'Please enter a category name.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const newCategory: Category = {
+      id: Date.now().toString(),
+      name: categoryForm.name,
+      description: categoryForm.description
+    };
+
+    const updatedCategories = [...categories, newCategory];
+    setCategories(updatedCategories);
+    localStorage.setItem('categories', JSON.stringify(updatedCategories));
+    
+    setCategoryForm({ name: '', description: '' });
+    
+    toast({
+      title: 'Category Added',
+      description: `${newCategory.name} category has been created.`,
+    });
+  };
+
+  const deleteCategory = (categoryId: string) => {
+    const updatedCategories = categories.filter(c => c.id !== categoryId);
+    setCategories(updatedCategories);
+    localStorage.setItem('categories', JSON.stringify(updatedCategories));
+    
+    toast({
+      title: 'Category Deleted',
+      description: 'Category has been removed successfully.',
+    });
+  };
+
+  const openEditProduct = (product: Product) => {
+    setEditProductForm({ ...product });
+  };
+
+  const updateProduct = () => {
+    if (!editProductForm) return;
+    
+    const updatedProducts = products.map(p => 
+      p.id === editProductForm.id ? editProductForm : p
+    );
+    setProducts(updatedProducts);
+    setEditProductForm(null);
+    
+    toast({
+      title: 'Product Updated',
+      description: 'Product has been updated successfully.',
+    });
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, isEdit = false) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target?.result as string;
+        if (isEdit && editProductForm) {
+          setEditProductForm({ ...editProductForm, image: imageUrl });
+        } else {
+          setProductForm(prev => ({ ...prev, image: imageUrl }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Calculate dashboard stats
@@ -316,6 +420,7 @@ const AdminDashboard = () => {
           <TabsList>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="seo">SEO Manager</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
@@ -466,14 +571,11 @@ const AdminDashboard = () => {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Smartphones">Smartphones</SelectItem>
-                        <SelectItem value="Tablets">Tablets</SelectItem>
-                        <SelectItem value="Laptops">Laptops</SelectItem>
-                        <SelectItem value="Wearables">Wearables</SelectItem>
-                        <SelectItem value="Audio">Audio</SelectItem>
-                        <SelectItem value="Gaming">Gaming</SelectItem>
-                        <SelectItem value="Cameras">Cameras</SelectItem>
-                        <SelectItem value="Accessories">Accessories</SelectItem>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.name}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -485,6 +587,23 @@ const AdminDashboard = () => {
                       onChange={(e) => setProductForm(prev => ({ ...prev, description: e.target.value }))}
                       placeholder="Product description"
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="productImage">Product Image</Label>
+                    <Input
+                      id="productImage"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, false)}
+                      className="cursor-pointer"
+                    />
+                    {productForm.image !== '/placeholder.svg' && (
+                      <img 
+                        src={productForm.image} 
+                        alt="Preview" 
+                        className="mt-2 w-20 h-20 object-cover rounded border"
+                      />
+                    )}
                   </div>
                   <Button onClick={addProduct} className="w-full">
                     <Plus className="h-4 w-4 mr-2" />
@@ -522,13 +641,166 @@ const AdminDashboard = () => {
                             <Badge variant={product.inStock ? 'default' : 'destructive'}>
                               {product.inStock ? 'In Stock' : 'Out of Stock'}
                             </Badge>
-                            <Button variant="outline" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={() => openEditProduct(product)}>
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-md">
+                                <DialogHeader>
+                                  <DialogTitle>Edit Product</DialogTitle>
+                                  <DialogDescription>
+                                    Update product information
+                                  </DialogDescription>
+                                </DialogHeader>
+                                {editProductForm && (
+                                  <div className="space-y-4">
+                                    <div>
+                                      <Label htmlFor="editProductName">Product Name</Label>
+                                      <Input
+                                        id="editProductName"
+                                        value={editProductForm.name}
+                                        onChange={(e) => setEditProductForm({ ...editProductForm, name: e.target.value })}
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="editProductPrice">Price</Label>
+                                      <Input
+                                        id="editProductPrice"
+                                        type="number"
+                                        value={editProductForm.price}
+                                        onChange={(e) => setEditProductForm({ ...editProductForm, price: parseFloat(e.target.value) })}
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="editProductCategory">Category</Label>
+                                      <Select
+                                        value={editProductForm.category}
+                                        onValueChange={(value) => setEditProductForm({ ...editProductForm, category: value })}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {categories.map((category) => (
+                                            <SelectItem key={category.id} value={category.name}>
+                                              {category.name}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="editProductImage">Product Image</Label>
+                                      <Input
+                                        id="editProductImage"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleImageUpload(e, true)}
+                                        className="cursor-pointer"
+                                      />
+                                      {editProductForm.image && (
+                                        <img 
+                                          src={editProductForm.image} 
+                                          alt="Preview" 
+                                          className="mt-2 w-20 h-20 object-cover rounded border"
+                                        />
+                                      )}
+                                    </div>
+                                    <div className="flex space-x-2">
+                                      <Button onClick={updateProduct} className="flex-1">
+                                        Update Product
+                                      </Button>
+                                      <Button variant="outline" onClick={() => setEditProductForm(null)} className="flex-1">
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </DialogContent>
+                            </Dialog>
                             <Button 
                               variant="outline" 
                               size="sm"
                               onClick={() => deleteProduct(product.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Categories Tab */}
+          <TabsContent value="categories">
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Add Category Form */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add New Category</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="categoryName">Category Name</Label>
+                    <Input
+                      id="categoryName"
+                      value={categoryForm.name}
+                      onChange={(e) => setCategoryForm(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Enter category name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="categoryDescription">Description</Label>
+                    <Textarea
+                      id="categoryDescription"
+                      value={categoryForm.description}
+                      onChange={(e) => setCategoryForm(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Category description"
+                    />
+                  </div>
+                  <Button onClick={addCategory} className="w-full">
+                    <FolderPlus className="h-4 w-4 mr-2" />
+                    Add Category
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Categories List */}
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Categories</CardTitle>
+                    <CardDescription>
+                      Manage your product categories
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {categories.map((category) => (
+                        <div key={category.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                              <Tags className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                              <p className="font-medium">{category.name}</p>
+                              <p className="text-sm text-gray-600">{category.description}</p>
+                              <Badge variant="outline">
+                                {products.filter(p => p.category === category.name).length} products
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => deleteCategory(category.id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

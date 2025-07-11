@@ -156,13 +156,15 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (product) {
-      // Fix: Remove quantity from the object passed to addToCart
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.thumbnail
-      }, quantity);
+      // Use updateQuantity to add the correct amount to cart
+      for (let i = 0; i < quantity; i++) {
+        addToCart({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.thumbnail
+        });
+      }
       toast({
         title: 'Item added to cart',
         description: 'Check your cart to complete your order.',

@@ -241,7 +241,7 @@ const TrackOrder = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Total</p>
-                    <p className="font-semibold">${orderData.total.toFixed(2)}</p>
+                    <p className="font-semibold">${(orderData.total || 0).toFixed(2)}</p>
                   </div>
                 </div>
               </CardContent>

@@ -193,81 +193,108 @@ const Products = () => {
         </div>
 
         {/* Filters and Controls */}
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-            {/* Category Filter */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Category</label>
-              <Select value={filterCategory} onValueChange={setFilterCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map(category => (
-                    <SelectItem key={category} value={category}>
-                      {category === 'all' ? 'All Categories' : category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Price Range */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Min Price</label>
-              <Input
-                type="number"
-                placeholder="$0"
-                value={priceRange.min}
-                onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Max Price</label>
-              <Input
-                type="number"
-                placeholder="$999"
-                value={priceRange.max}
-                onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
-              />
-            </div>
-
-            {/* Sort */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Sort By</label>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name">Name A-Z</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* View Mode */}
-            <div>
-              <label className="block text-sm font-medium mb-2">View</label>
-              <div className="flex border rounded-lg">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className="rounded-r-none"
+        <div className="bg-white rounded-lg shadow-sm mb-8">
+          {/* Mobile Category Pills */}
+          <div className="p-4 border-b md:hidden">
+            <label className="block text-sm font-medium mb-2">Categories</label>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {categories.map(category => (
+                <button
+                  key={category}
+                  onClick={() => setFilterCategory(category)}
+                  className={`flex-shrink-0 px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
+                    filterCategory === category
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
                 >
-                  <Grid3X3 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className="rounded-l-none"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
+                  {category === 'all' ? 'All' : category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop and Other Filters */}
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+              {/* Category Filter - Hidden on Mobile */}
+              <div className="hidden md:block">
+                <label className="block text-sm font-medium mb-2">Category</label>
+                <Select value={filterCategory} onValueChange={setFilterCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(category => (
+                      <SelectItem key={category} value={category}>
+                        {category === 'all' ? 'All Categories' : category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Price Range */}
+              <div className="grid grid-cols-2 gap-2 md:contents">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Min Price</label>
+                  <Input
+                    type="number"
+                    placeholder="$0"
+                    value={priceRange.min}
+                    onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                    className="text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Max Price</label>
+                  <Input
+                    type="number"
+                    placeholder="$999"
+                    value={priceRange.max}
+                    onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Sort */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Sort By</label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Name A-Z</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="rating">Highest Rated</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* View Mode */}
+              <div>
+                <label className="block text-sm font-medium mb-2">View</label>
+                <div className="flex border rounded-lg">
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                    className="rounded-r-none text-xs"
+                  >
+                    <Grid3X3 className="h-3 w-3 md:h-4 md:w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="rounded-l-none text-xs"
+                  >
+                    <List className="h-3 w-3 md:h-4 md:w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

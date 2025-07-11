@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Zap, MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,6 +31,7 @@ interface Product {
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -102,6 +103,93 @@ const ProductDetail = () => {
     }
   };
 
+  const generateOrderId = () => {
+    return 'ORDER-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  };
+
+  const generateTrackingCode = () => {
+    return 'TRACK-' + Date.now().toString().slice(-6) + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+  };
+
+  const handleBuyNow = async (data: any) => {
+    if (!product) return;
+
+    try {
+      const orderId = generateOrderId();
+      const trackingCode = generateTrackingCode();
+      
+      // Split full name into first and last name
+      const nameParts = data.name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      // Calculate totals
+      const subtotal = product.price * quantity;
+      const shipping = subtotal >= 50 ? 0 : 9.99;
+      const total = subtotal + shipping;
+      
+      // Create order object with the correct structure expected by OrderConfirmation
+      const orderData = {
+        orderId,
+        trackingCode,
+        customer: {
+          firstName,
+          lastName,
+          email: '', // Not collected in our simplified form
+          phone: data.phone,
+        },
+        shippingAddress: {
+          address: data.address,
+          city: data.city,
+          state: '', // Not collected in our simplified form
+          zipCode: '', // Not collected in our simplified form
+          country: '', // Not collected in our simplified form
+        },
+        items: [{
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: quantity,
+          image: product.image
+        }],
+        pricing: {
+          subtotal,
+          shipping,
+          total
+        },
+        paymentMethod: 'Cash on Delivery',
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        notes: ''
+      };
+
+      // Store order in localStorage (simulate database)
+      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+      existingOrders.push(orderData);
+      localStorage.setItem('orders', JSON.stringify(existingOrders));
+
+      // Navigate to confirmation page
+      navigate(`/order-confirmation/${orderId}`, { 
+        state: { orderData }
+      });
+
+      toast({
+        title: 'Order Placed Successfully!',
+        description: `Your order ${orderId} has been placed successfully.`,
+      });
+
+      form.reset();
+      setShowBuyNowForm(false);
+    } catch (error) {
+      console.error('Error placing order:', error);
+      toast({
+        title: 'Order Failed',
+        description: 'There was an error placing your order. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -116,17 +204,6 @@ const ProductDetail = () => {
         description: 'Product link has been copied to clipboard.',
       });
     }
-  };
-
-  const handleBuyNow = (data: any) => {
-    console.log('Buy Now order:', data);
-    // Here you would normally process the order
-    toast({
-      title: 'Order Placed!',
-      description: `Your order for ${product?.name} has been placed successfully. We'll contact you soon.`,
-    });
-    form.reset();
-    setShowBuyNowForm(false);
   };
 
   const handleWhatsApp = () => {

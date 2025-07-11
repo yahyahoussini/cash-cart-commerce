@@ -316,6 +316,7 @@ const AdminDashboard = () => {
           <TabsList>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="seo">SEO Manager</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -539,6 +540,35 @@ const AdminDashboard = () => {
                 </Card>
               </div>
             </div>
+          </TabsContent>
+
+          {/* SEO Tab */}
+          <TabsContent value="seo">
+            <Card>
+              <CardHeader>
+                <CardTitle>Gestionnaire SEO</CardTitle>
+                <CardDescription>
+                  Optimisez le référencement de vos produits pour améliorer leur visibilité sur les moteurs de recherche
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8 space-y-4">
+                  <div className="text-6xl">🔍</div>
+                  <h3 className="text-xl font-semibold">Optimisation SEO Avancée</h3>
+                  <p className="text-gray-600 max-w-md mx-auto">
+                    Créez et gérez le contenu SEO optimisé pour chaque produit. 
+                    Améliorez votre classement sur Google pour "cosmétiques bio Maroc".
+                  </p>
+                  <Button 
+                    onClick={() => navigate('/admin/seo-manager')} 
+                    size="lg"
+                    className="mt-4"
+                  >
+                    Ouvrir le Gestionnaire SEO
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Analytics Tab */}

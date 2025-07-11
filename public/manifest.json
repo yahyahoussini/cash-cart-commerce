@@ -1,14 +1,14 @@
 
 {
-  "name": "MyCODStore - Premium eCommerce",
-  "short_name": "MyCODStore",
-  "description": "Shop premium products with cash on delivery",
+  "name": "BioCosmetics Morocco - Premium Organic Beauty Products",
+  "short_name": "BioCosmetics",
+  "description": "Premium organic and bio cosmetics from Morocco. Natural beauty products with argan oil, rose water, and traditional Moroccan ingredients.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "theme_color": "#10b981",
   "orientation": "portrait-primary",
-  "categories": ["shopping", "business"],
+  "categories": ["beauty", "cosmetics", "organic", "wellness", "shopping"],
   "lang": "en",
   "dir": "ltr",
   "icons": [

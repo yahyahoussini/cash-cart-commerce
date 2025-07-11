@@ -16,6 +16,7 @@ import ProductSEOManager from "./pages/ProductSEOManager";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import TrackOrder from "./pages/TrackOrder";
+import Checkout from "./pages/Checkout";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
@@ -34,12 +35,14 @@ const App = () => (
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/track-order" element={<TrackOrder />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/seo-manager" element={<ProductSEOManager />} />

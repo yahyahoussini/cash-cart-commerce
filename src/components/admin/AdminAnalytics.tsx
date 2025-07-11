@@ -94,15 +94,15 @@ export const AdminAnalytics = () => {
 
   return (
     <div className="space-y-6">
-      {/* Geographic Analytics */}
+      {/* Geographic Analytics (Demo Data) */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <MapPin className="h-5 w-5 mr-2" />
-            Geographic Analytics
+            Geographic Analytics (Demo)
           </CardTitle>
           <CardDescription>
-            Customer distribution by city and country
+            Sample geographic data for demonstration purposes
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -217,15 +217,15 @@ export const AdminAnalytics = () => {
         </CardContent>
       </Card>
 
-      {/* Traffic Sources */}
+      {/* Traffic Sources (Demo Data) */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Globe className="h-5 w-5 mr-2" />
-            Traffic Sources
+            Traffic Sources (Demo)
           </CardTitle>
           <CardDescription>
-            Where your customers are coming from
+            Sample traffic source data for demonstration purposes
           </CardDescription>
         </CardHeader>
         <CardContent>

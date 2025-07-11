@@ -310,18 +310,18 @@ Thank you for shopping with MyCODStore!
               <CardContent>
                 <div className="space-y-1">
                   <p className="font-semibold">
-                    {orderData?.customer.firstName} {orderData?.customer.lastName}
+                    {orderData?.customer?.firstName} {orderData?.customer?.lastName}
                   </p>
-                  <p>{orderData?.shippingAddress.address}</p>
+                  <p>{orderData?.shippingAddress?.address || 'Address not provided'}</p>
                   <p>
-                    {orderData?.shippingAddress.city}, {orderData?.shippingAddress.state} {orderData?.shippingAddress.zipCode}
+                    {orderData?.shippingAddress?.city || ''}{orderData?.shippingAddress?.city && orderData?.shippingAddress?.state ? ', ' : ''}{orderData?.shippingAddress?.state || ''} {orderData?.shippingAddress?.zipCode || ''}
                   </p>
-                  <p>{orderData?.shippingAddress.country}</p>
+                  <p>{orderData?.shippingAddress?.country || ''}</p>
                   <p className="text-gray-600 mt-2">
-                    Phone: {orderData?.customer.phone}
+                    Phone: {orderData?.customer?.phone || 'Not provided'}
                   </p>
                   <p className="text-gray-600">
-                    Email: {orderData?.customer.email}
+                    Email: {orderData?.customer?.email || 'Not provided'}
                   </p>
                 </div>
               </CardContent>

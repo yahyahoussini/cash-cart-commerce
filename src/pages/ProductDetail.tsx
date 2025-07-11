@@ -156,13 +156,13 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (product) {
+      // Fix: Remove quantity from the object passed to addToCart
       addToCart({
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.thumbnail,
-        quantity: quantity
-      });
+        image: product.thumbnail
+      }, quantity);
       toast({
         title: 'Item added to cart',
         description: 'Check your cart to complete your order.',
@@ -195,7 +195,7 @@ const ProductDetail = () => {
       const shipping = subtotal >= 50 ? 0 : 9.99;
       const total = subtotal + shipping;
       
-      // Create order object with the correct structure expected by OrderConfirmation
+      // Create order object with proper structure and defensive defaults
       const orderData = {
         orderId,
         trackingCode,
@@ -203,11 +203,11 @@ const ProductDetail = () => {
           firstName,
           lastName,
           email: '', // Not collected in our simplified form
-          phone: data.phone,
+          phone: data.phone || '',
         },
         shippingAddress: {
-          address: data.location, // Use 'location' field from form as 'address'
-          city: data.city,
+          address: data.location || '', // Ensure this field exists
+          city: data.city || '',
           state: '', // Not collected in our simplified form
           zipCode: '', // Not collected in our simplified form
           country: '', // Not collected in our simplified form
@@ -217,7 +217,7 @@ const ProductDetail = () => {
           name: product.name,
           price: product.price,
           quantity: quantity,
-          image: product.thumbnail // Use thumbnail instead of image
+          image: product.thumbnail
         }],
         pricing: {
           subtotal,

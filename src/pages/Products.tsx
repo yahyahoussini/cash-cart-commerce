@@ -51,7 +51,7 @@ const Products = () => {
         setProducts(data || []);
         setFilteredProducts(data || []);
         
-        // Extract unique categories
+        // Extract unique categories from products
         const uniqueCategories = ['all', ...new Set((data || []).map(p => p.category).filter(Boolean))];
         setCategories(uniqueCategories);
       } catch (error) {
@@ -61,7 +61,55 @@ const Products = () => {
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const { data: categoriesData } = await supabase
+          .from('categories')
+          .select('name')
+          .order('name');
+        
+        if (categoriesData) {
+          const categoryNames = ['all', ...categoriesData.map(c => c.name)];
+          setCategories(categoryNames);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
     fetchProducts();
+    fetchCategories();
+
+    // Subscribe to real-time changes
+    const productsSubscription = supabase
+      .channel('products-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'products'
+      }, () => {
+        // Refetch products when changes occur
+        fetchProducts();
+      })
+      .subscribe();
+
+    const categoriesSubscription = supabase
+      .channel('categories-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'categories'
+      }, () => {
+        // Refetch categories when changes occur
+        fetchCategories();
+      })
+      .subscribe();
+
+    // Cleanup subscriptions
+    return () => {
+      supabase.removeChannel(productsSubscription);
+      supabase.removeChannel(categoriesSubscription);
+    };
   }, []);
 
   useEffect(() => {

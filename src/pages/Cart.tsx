@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Truck, Shield, MessageCircle } from 'lucide-react';
@@ -105,15 +106,27 @@ const Cart = () => {
       const orderId = generateOrderId();
       const trackingCode = generateTrackingCode();
       
-      // Create order object
+      // Split full name into first and last name
+      const nameParts = formData.fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      // Create order object with the correct structure expected by OrderConfirmation
       const orderData = {
         orderId,
         trackingCode,
         customer: {
-          fullName: formData.fullName,
+          firstName,
+          lastName,
+          email: '', // Not collected in our simplified form
           phone: formData.phone,
+        },
+        shippingAddress: {
+          address: formData.location,
           city: formData.city,
-          location: formData.location,
+          state: '', // Not collected in our simplified form
+          zipCode: '', // Not collected in our simplified form
+          country: '', // Not collected in our simplified form
         },
         items: state.items,
         pricing: {
@@ -121,10 +134,10 @@ const Cart = () => {
           shipping,
           total
         },
-        paymentMethod: 'cod',
-        notes: formData.notes,
+        paymentMethod: 'Cash on Delivery',
         status: 'pending',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        notes: formData.notes
       };
 
       // Simulate API call - Replace with actual API endpoint

@@ -431,7 +431,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <Button onClick={handleAddToCart} disabled={product.stock === 0}>
                 <ShoppingCart className="h-4 w-4 mr-2" />
                 Add to Cart
@@ -441,6 +441,21 @@ const ProductDetail = () => {
                 Buy Now
               </Button>
             </div>
+
+            {/* Continue to WhatsApp Button */}
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                const whatsappMessage = encodeURIComponent(
+                  `Hi, I want to ask about ${product.name} - ${product.description}`
+                );
+                window.open(`https://wa.me/?text=${whatsappMessage}`, '_blank');
+              }}
+              className="w-full"
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Continue to WhatsApp
+            </Button>
 
             <Separator className="my-4" />
 

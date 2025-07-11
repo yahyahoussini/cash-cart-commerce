@@ -16,7 +16,10 @@ import {
   Calendar,
   Upload,
   FolderPlus,
-  Tags
+  Tags,
+  MapPin,
+  Globe,
+  Target
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,6 +48,24 @@ interface Category {
   description: string;
 }
 
+interface CityAnalytics {
+  city: string;
+  country: string;
+  visitors: number;
+  orders: number;
+  revenue: number;
+  coordinates: [number, number];
+}
+
+interface ProductSales {
+  productId: string;
+  productName: string;
+  category: string;
+  totalSold: number;
+  revenue: number;
+  rank: number;
+}
+
 interface Order {
   orderId: string;
   customer: {
@@ -52,6 +73,8 @@ interface Order {
     lastName: string;
     email: string;
     phone: string;
+    city?: string;
+    country?: string;
   };
   items: any[];
   total: number;
@@ -326,6 +349,29 @@ const AdminDashboard = () => {
       reader.readAsDataURL(file);
     }
   };
+
+  // Mock analytics data
+  const cityAnalytics: CityAnalytics[] = [
+    { city: 'Casablanca', country: 'Morocco', visitors: 1250, orders: 85, revenue: 12450, coordinates: [33.5731, -7.5898] },
+    { city: 'Rabat', country: 'Morocco', visitors: 890, orders: 62, revenue: 8900, coordinates: [34.0209, -6.8416] },
+    { city: 'Marrakech', country: 'Morocco', visitors: 750, orders: 48, revenue: 6780, coordinates: [31.6295, -7.9811] },
+    { city: 'Fez', country: 'Morocco', visitors: 520, orders: 35, revenue: 4950, coordinates: [34.0181, -5.0078] },
+    { city: 'Tangier', country: 'Morocco', visitors: 430, orders: 28, revenue: 3820, coordinates: [35.7595, -5.8340] },
+    { city: 'Agadir', country: 'Morocco', visitors: 380, orders: 22, revenue: 3100, coordinates: [30.4278, -9.5981] },
+    { city: 'Paris', country: 'France', visitors: 320, orders: 18, revenue: 2890, coordinates: [48.8566, 2.3522] },
+    { city: 'Madrid', country: 'Spain', visitors: 280, orders: 15, revenue: 2340, coordinates: [40.4168, -3.7038] }
+  ];
+
+  const productSales: ProductSales[] = [
+    { productId: '1', productName: 'Apple iPhone 15 Pro', category: 'Smartphones', totalSold: 145, revenue: 173855, rank: 1 },
+    { productId: '3', productName: 'Sony WH-1000XM5 Headphones', category: 'Audio', totalSold: 98, revenue: 39102, rank: 2 },
+    { productId: '4', productName: 'iPad Pro 12.9"', category: 'Tablets', totalSold: 76, revenue: 83524, rank: 3 },
+    { productId: '2', productName: 'Samsung Galaxy Watch 6', category: 'Wearables', totalSold: 63, revenue: 20727, rank: 4 },
+    { productId: '7', productName: 'Nintendo Switch OLED', category: 'Gaming', totalSold: 52, revenue: 18148, rank: 5 },
+    { productId: '6', productName: 'AirPods Pro 2nd Gen', category: 'Audio', totalSold: 48, revenue: 11952, rank: 6 },
+    { productId: '8', productName: 'Canon EOS R8 Camera', category: 'Cameras', totalSold: 28, revenue: 41972, rank: 7 },
+    { productId: '5', productName: 'MacBook Air M2', category: 'Laptops', totalSold: 15, revenue: 17985, rank: 8 }
+  ];
 
   // Calculate dashboard stats
   const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
@@ -845,56 +891,247 @@ const AdminDashboard = () => {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Sales Overview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span>Total Sales:</span>
-                      <span className="font-bold">${totalRevenue.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Average Order Value:</span>
-                      <span className="font-bold">
-                        ${totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : '0.00'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Total Orders:</span>
-                      <span className="font-bold">{totalOrders}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="space-y-6">
+              {/* Top Analytics Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Top City Revenue</CardTitle>
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{cityAnalytics[0]?.city || 'Casablanca'}</div>
+                    <p className="text-xs text-muted-foreground">
+                      ${cityAnalytics[0]?.revenue.toLocaleString() || '12,450'} revenue
+                    </p>
+                  </CardContent>
+                </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Order Status</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Pending:</span>
-                      <span>{orders.filter(o => o.status === 'pending').length}</span>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Best Selling Product</CardTitle>
+                    <Target className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-lg font-bold">{productSales[0]?.productName || 'iPhone 15 Pro'}</div>
+                    <p className="text-xs text-muted-foreground">
+                      {productSales[0]?.totalSold || 145} units sold
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {cityAnalytics.reduce((sum, city) => sum + city.visitors, 0).toLocaleString()}
                     </div>
-                    <div className="flex justify-between">
-                      <span>Confirmed:</span>
-                      <span>{orders.filter(o => o.status === 'confirmed').length}</span>
+                    <p className="text-xs text-muted-foreground">
+                      From {cityAnalytics.length} cities
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* City Analytics and Product Rankings */}
+              <div className="grid lg:grid-cols-2 gap-6">
+                {/* City Analytics */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <MapPin className="h-5 w-5 mr-2" />
+                      City Performance Analytics
+                    </CardTitle>
+                    <CardDescription>
+                      Revenue and visitor data by city
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {cityAnalytics.map((city, index) => (
+                        <div key={city.city} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                          <div className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-all duration-200">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <p className="font-medium">{city.city}</p>
+                                <p className="text-sm text-gray-500">{city.country}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="flex space-x-4 text-sm">
+                                <div>
+                                  <p className="text-gray-500">Visitors</p>
+                                  <p className="font-bold">{city.visitors.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500">Orders</p>
+                                  <p className="font-bold">{city.orders}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500">Revenue</p>
+                                  <p className="font-bold text-green-600">${city.revenue.toLocaleString()}</p>
+                                </div>
+                              </div>
+                              <div className="mt-2">
+                                <div className="w-24 h-2 bg-gray-200 rounded-full">
+                                  <div 
+                                    className="h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-500"
+                                    style={{ width: `${(city.revenue / cityAnalytics[0].revenue) * 100}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex justify-between">
-                      <span>Shipped:</span>
-                      <span>{orders.filter(o => o.status === 'shipped').length}</span>
+                  </CardContent>
+                </Card>
+
+                {/* Product Sales Ranking */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Target className="h-5 w-5 mr-2" />
+                      Product Sales Ranking
+                    </CardTitle>
+                    <CardDescription>
+                      Most to least sold products
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {productSales.map((product, index) => (
+                        <div key={product.productId} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                          <div className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-all duration-200">
+                            <div className="flex items-center space-x-3">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
+                                index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500' :
+                                index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600' :
+                                index === 2 ? 'bg-gradient-to-br from-yellow-600 to-yellow-800' :
+                                'bg-gradient-to-br from-blue-500 to-purple-600'
+                              }`}>
+                                {product.rank}
+                              </div>
+                              <div>
+                                <p className="font-medium text-sm">{product.productName}</p>
+                                <Badge variant="outline" className="text-xs">{product.category}</Badge>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="flex space-x-3 text-sm">
+                                <div>
+                                  <p className="text-gray-500">Sold</p>
+                                  <p className="font-bold">{product.totalSold}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500">Revenue</p>
+                                  <p className="font-bold text-green-600">${product.revenue.toLocaleString()}</p>
+                                </div>
+                              </div>
+                              <div className="mt-2">
+                                <div className="w-20 h-2 bg-gray-200 rounded-full">
+                                  <div 
+                                    className="h-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-full transition-all duration-500"
+                                    style={{ width: `${(product.totalSold / productSales[0].totalSold) * 100}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex justify-between">
-                      <span>Delivered:</span>
-                      <span>{orders.filter(o => o.status === 'delivered').length}</span>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Audience Insights */}
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Globe className="h-5 w-5 mr-2" />
+                      Audience Locations
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="flex items-center">
+                          <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                          Morocco
+                        </span>
+                        <span className="font-bold">78.5%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="flex items-center">
+                          <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                          France
+                        </span>
+                        <span className="font-bold">12.8%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="flex items-center">
+                          <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+                          Spain
+                        </span>
+                        <span className="font-bold">8.7%</span>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Conversion Rates</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Overall:</span>
+                        <span className="font-bold text-green-600">6.8%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Morocco:</span>
+                        <span className="font-bold text-green-600">7.2%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>International:</span>
+                        <span className="font-bold">5.6%</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Growth Metrics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Revenue Growth:</span>
+                        <span className="font-bold text-green-600">+24.5%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>New Customers:</span>
+                        <span className="font-bold text-blue-600">+18.3%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Avg. Order Value:</span>
+                        <span className="font-bold text-purple-600">+12.1%</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
         </Tabs>

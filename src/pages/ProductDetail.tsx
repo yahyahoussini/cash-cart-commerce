@@ -3,31 +3,130 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Zap, MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Separator } from '@/components/ui/separator';
 import { useForm } from 'react-hook-form';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
 import { toast } from '@/hooks/use-toast';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 interface Product {
   id: string;
   name: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  gallery: string[];
   description: string;
-  category: string;
+  price: number;
+  images: string[];
+  thumbnail: string;
   rating: number;
-  reviews: number;
-  inStock: boolean;
-  features: string[];
-  specifications: { [key: string]: string };
+  numReviews: number;
+  discountPercentage: number;
+  stock: number;
+  brand: string;
+  category: string;
+  freeShipping: boolean;
 }
+
+const products: Product[] = [
+  {
+    id: '1',
+    name: 'Luxury Watch',
+    description: 'A high-end watch with automatic movement and sapphire crystal.',
+    price: 599.99,
+    images: [
+      '/images/watch1-1.jpg',
+      '/images/watch1-2.jpg',
+      '/images/watch1-3.jpg',
+    ],
+    thumbnail: '/images/watch1-1.jpg',
+    rating: 4.8,
+    numReviews: 120,
+    discountPercentage: 5.0,
+    stock: 50,
+    brand: 'Rolex',
+    category: 'Watches',
+    freeShipping: true,
+  },
+  {
+    id: '2',
+    name: 'Elegant Handbag',
+    description: 'A stylish leather handbag perfect for any occasion.',
+    price: 249.50,
+    images: [
+      '/images/bag2-1.jpg',
+      '/images/bag2-2.jpg',
+      '/images/bag2-3.jpg',
+    ],
+    thumbnail: '/images/bag2-1.jpg',
+    rating: 4.5,
+    numReviews: 95,
+    discountPercentage: 10.0,
+    stock: 30,
+    brand: 'Gucci',
+    category: 'Handbags',
+    freeShipping: false,
+  },
+  {
+    id: '3',
+    name: 'Classic Suit',
+    description: 'A timeless suit made from premium wool.',
+    price: 799.00,
+    images: [
+      '/images/suit3-1.jpg',
+      '/images/suit3-2.jpg',
+      '/images/suit3-3.jpg',
+    ],
+    thumbnail: '/images/suit3-1.jpg',
+    rating: 4.7,
+    numReviews: 110,
+    discountPercentage: 7.5,
+    stock: 40,
+    brand: 'Armani',
+    category: 'Suits',
+    freeShipping: true,
+  },
+  {
+    id: '4',
+    name: 'Running Shoes',
+    description: 'High-performance running shoes for athletes.',
+    price: 129.99,
+    images: [
+      '/images/shoes4-1.jpg',
+      '/images/shoes4-2.jpg',
+      '/images/shoes4-3.jpg',
+    ],
+    thumbnail: '/images/shoes4-1.jpg',
+    rating: 4.6,
+    numReviews: 80,
+    discountPercentage: 12.0,
+    stock: 60,
+    brand: 'Nike',
+    category: 'Shoes',
+    freeShipping: false,
+  },
+  {
+    id: '5',
+    name: 'Diamond Ring',
+    description: 'A stunning diamond ring for special occasions.',
+    price: 1999.00,
+    images: [
+      '/images/ring5-1.jpg',
+      '/images/ring5-2.jpg',
+      '/images/ring5-3.jpg',
+    ],
+    thumbnail: '/images/ring5-1.jpg',
+    rating: 4.9,
+    numReviews: 150,
+    discountPercentage: 2.5,
+    stock: 20,
+    brand: 'Tiffany & Co.',
+    category: 'Jewelry',
+    freeShipping: true,
+  },
+];
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -35,70 +134,31 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [showBuyNowForm, setShowBuyNowForm] = useState(false);
   const { addToCart } = useCart();
+  
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      phone: '',
+      city: '',
+      location: '',
+    }
+  });
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        // Mock product data - Replace with actual API call
-        const mockProduct: Product = {
-          id: id || '1',
-          name: 'Premium Wireless Headphones',
-          price: 299,
-          originalPrice: 399,
-          image: '/placeholder.svg',
-          gallery: ['/placeholder.svg', '/placeholder.svg', '/placeholder.svg'],
-          description: 'Experience premium audio quality with these state-of-the-art wireless headphones. Featuring advanced noise cancellation technology, 30-hour battery life, and superior comfort for all-day wear.',
-          category: 'Electronics',
-          rating: 4.8,
-          reviews: 1247,
-          inStock: true,
-          features: [
-            'Active Noise Cancellation',
-            '30-hour battery life',
-            'Quick charge (3 hours in 15 minutes)',
-            'Premium leather ear cushions',
-            'Wireless and wired connectivity',
-            'Built-in microphone',
-            'Voice assistant compatible',
-            'Foldable design'
-          ],
-          specifications: {
-            'Driver Size': '40mm',
-            'Frequency Response': '20Hz - 20kHz',
-            'Impedance': '32 ohms',
-            'Sensitivity': '100 dB',
-            'Battery Life': '30 hours',
-            'Charging Time': '2 hours',
-            'Weight': '250g',
-            'Connectivity': 'Bluetooth 5.0, 3.5mm jack',
-            'Warranty': '2 years'
-          }
-        };
-        
-        setProduct(mockProduct);
-      } catch (error) {
-        console.error('Error fetching product:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      fetchProduct();
+    const foundProduct = products.find((p) => p.id === id);
+    if (foundProduct) {
+      setProduct(foundProduct);
     }
   }, [id]);
 
   const handleAddToCart = () => {
-    if (!product) return;
-    
-    for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image
+    if (product) {
+      addToCart(product, quantity);
+      toast({
+        title: 'Item added to cart',
+        description: 'Check your cart to complete your order.',
       });
     }
   };
@@ -139,7 +199,7 @@ const ProductDetail = () => {
           phone: data.phone,
         },
         shippingAddress: {
-          address: data.address,
+          address: data.location, // Fix: use 'location' field from form
           city: data.city,
           state: '', // Not collected in our simplified form
           zipCode: '', // Not collected in our simplified form
@@ -162,6 +222,8 @@ const ProductDetail = () => {
         createdAt: new Date().toISOString(),
         notes: ''
       };
+
+      console.log('Creating order from Buy Now:', orderData); // Debug log
 
       // Store order in localStorage (simulate database)
       const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
@@ -191,61 +253,29 @@ const ProductDetail = () => {
   };
 
   const handleShare = () => {
-    if (navigator.share) {
+    if (navigator.share && product) {
       navigator.share({
-        title: product?.name,
-        text: product?.description,
+        title: product.name,
+        text: product.description,
         url: window.location.href,
-      });
+      })
+      .then(() => console.log('Successful share'))
+      .catch((error) => console.error('Error sharing', error));
     } else {
-      navigator.clipboard.writeText(window.location.href);
       toast({
-        title: 'Link copied!',
-        description: 'Product link has been copied to clipboard.',
+        title: 'Web Share API not supported',
+        description: 'Please use another method to share this product.',
       });
     }
   };
 
   const handleWhatsApp = () => {
     if (!product) return;
-    
-    const message = `Hi! I'm interested in this product:
-    
-*${product.name}*
-Price: $${product.price}
-${product.originalPrice ? `Original Price: $${product.originalPrice}` : ''}
-
-${product.description}
-
-Please let me know about availability and delivery details.`;
-
-    const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
-  const [showBuyNowForm, setShowBuyNowForm] = useState(false);
-  
-  const form = useForm({
-    defaultValues: {
-      name: '',
-      phone: '',
-      address: '',
-      city: '',
-      quantity: 1
-    }
-  });
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
-        <Footer />
-      </div>
+    const whatsappMessage = encodeURIComponent(
+      `Check out this product: ${product.name} - ${product.description} at ${window.location.href}`
     );
-  }
+    window.open(`https://wa.me/?text=${whatsappMessage}`, '_blank');
+  };
 
   if (!product) {
     return (
@@ -258,7 +288,7 @@ Please let me know about availability and delivery details.`;
               The product you're looking for could not be found.
             </p>
             <Link to="/products">
-              <Button>Back to Products</Button>
+              <Button>Return to Products</Button>
             </Link>
           </div>
         </div>
@@ -272,8 +302,8 @@ Please let me know about availability and delivery details.`;
       <Header />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center mb-8">
+        {/* Back Button */}
+        <div className="mb-6">
           <Link to="/products">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -282,371 +312,248 @@ Please let me know about availability and delivery details.`;
           </Link>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        {/* Product Display */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Product Images */}
           <div>
-            <div className="space-y-4">
-              <div className="aspect-square bg-white rounded-lg p-4">
+            <img
+              src={product.images[selectedImage]}
+              alt={product.name}
+              className="w-full h-96 object-cover rounded-lg mb-4"
+            />
+            <div className="flex space-x-2">
+              {product.images.map((image, index) => (
                 <img
-                  src={product.gallery[selectedImage] || product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover rounded-lg"
+                  key={index}
+                  src={image}
+                  alt={`${product.name} - ${index + 1}`}
+                  className={`w-20 h-20 object-cover rounded-md cursor-pointer ${
+                    index === selectedImage ? 'ring-2 ring-blue-500' : ''
+                  }`}
+                  onClick={() => setSelectedImage(index)}
                 />
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                {product.gallery.map((image, index) => (
-                  <button
+              ))}
+            </div>
+          </div>
+
+          {/* Product Details */}
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+            <div className="flex items-center mb-4">
+              <div className="flex items-center">
+                {[...Array(5)].map((_, index) => (
+                  <Star
                     key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`aspect-square bg-white rounded-lg p-2 border-2 transition-colors ${
-                      selectedImage === index ? 'border-blue-600' : 'border-gray-200'
+                    className={`h-5 w-5 ${
+                      index < product.rating ? 'text-yellow-500' : 'text-gray-300'
                     }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover rounded"
-                    />
-                  </button>
+                  />
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* Product Info */}
-          <div className="space-y-6">
-            <div>
-              <Badge variant="outline" className="mb-2">
-                {product.category}
-              </Badge>
-              <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-5 w-5 ${
-                        i < Math.floor(product.rating)
-                          ? 'text-yellow-500 fill-current'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                  <span className="ml-2 text-lg font-medium">{product.rating}</span>
-                </div>
-                <span className="text-gray-600">({product.reviews} reviews)</span>
-              </div>
-            </div>
-
-            {/* Price */}
-            <div className="flex items-center space-x-4">
-              <span className="text-4xl font-bold text-blue-600">
-                ${product.price}
+              <span className="text-gray-600 ml-2">
+                {product.rating} ({product.numReviews} reviews)
               </span>
-              {product.originalPrice && (
-                <span className="text-2xl text-gray-500 line-through">
-                  ${product.originalPrice}
-                </span>
-              )}
-              {product.originalPrice && (
-                <Badge className="bg-red-500">
-                  Save ${product.originalPrice - product.price}
+            </div>
+
+            <div className="mb-4">
+              {product.discountPercentage > 0 && (
+                <Badge variant="destructive" className="mr-2">
+                  {product.discountPercentage}% off
                 </Badge>
               )}
+              {product.freeShipping && (
+                <Badge variant="secondary">Free Shipping</Badge>
+              )}
             </div>
 
-            {/* Description */}
-            <p className="text-gray-600 text-lg leading-relaxed">
-              {product.description}
-            </p>
+            <p className="text-gray-700 mb-6">{product.description}</p>
 
-            {/* Stock Status */}
-            <div className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className={product.inStock ? 'text-green-600' : 'text-red-600'}>
-                {product.inStock ? 'In Stock' : 'Out of Stock'}
-              </span>
-            </div>
-
-            {/* Quantity and Add to Cart */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <label className="font-medium">Quantity:</label>
-                <div className="flex items-center border rounded-lg">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1}
-                  >
-                    -
-                  </Button>
-                  <span className="px-4 py-2 border-x">{quantity}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setQuantity(quantity + 1)}
-                  >
-                    +
-                  </Button>
-                </div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-2xl font-semibold">${product.price}</span>
+                {product.discountPercentage > 0 && (
+                  <span className="text-gray-500 line-through ml-2">
+                    ${(product.price / (1 - product.discountPercentage / 100)).toFixed(2)}
+                  </span>
+                )}
               </div>
+              <div>
+                {product.stock > 0 ? (
+                  <Badge variant="outline">In Stock ({product.stock} left)</Badge>
+                ) : (
+                  <Badge variant="destructive">Out of Stock</Badge>
+                )}
+              </div>
+            </div>
 
-              <div className="flex space-x-4">
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={!product.inStock}
-                  size="lg"
-                  className="flex-1"
-                >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  Add to Cart
-                </Button>
-                
-                <Dialog open={showBuyNowForm} onOpenChange={setShowBuyNowForm}>
-                  <DialogTrigger asChild>
-                    <Button
-                      disabled={!product.inStock}
-                      size="lg"
-                      className="flex-1 bg-orange-600 hover:bg-orange-700"
-                    >
-                      <Zap className="h-5 w-5 mr-2" />
-                      Buy Now
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Complete Your Order</DialogTitle>
-                    </DialogHeader>
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(handleBuyNow)} className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Full Name</FormLabel>
-                              <FormControl>
-                                <input
-                                  {...field}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Enter your full name"
-                                  required
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="phone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone Number</FormLabel>
-                              <FormControl>
-                                <input
-                                  {...field}
-                                  type="tel"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Enter your phone number"
-                                  required
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="address"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Address</FormLabel>
-                              <FormControl>
-                                <textarea
-                                  {...field}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Enter your complete address"
-                                  rows={3}
-                                  required
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="city"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>City</FormLabel>
-                              <FormControl>
-                                <input
-                                  {...field}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Enter your city"
-                                  required
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="font-medium">{product.name}</span>
-                            <span>${product.price}</span>
-                          </div>
-                          <div className="flex justify-between items-center mb-2">
-                            <span>Quantity:</span>
-                            <span>{quantity}</span>
-                          </div>
-                          <div className="flex justify-between items-center font-bold text-lg border-t pt-2">
-                            <span>Total:</span>
-                            <span>${(product.price * quantity).toFixed(2)}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex space-x-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setShowBuyNowForm(false)}
-                            className="flex-1"
-                          >
-                            Cancel
-                          </Button>
-                          <Button type="submit" className="flex-1">
-                            Place Order
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  </DialogContent>
-                </Dialog>
+            <Separator className="mb-4" />
 
+            {/* Quantity */}
+            <div className="flex items-center space-x-4 mb-6">
+              <Label htmlFor="quantity" className="text-sm font-medium">
+                Quantity:
+              </Label>
+              <div className="flex items-center space-x-2">
                 <Button
-                  onClick={handleWhatsApp}
-                  size="lg"
-                  className="bg-green-600 hover:bg-green-700"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 >
-                  <MessageCircle className="h-5 w-5 mr-2" />
-                  WhatsApp
+                  <Minus className="h-4 w-4" />
                 </Button>
-                
-                <Button variant="outline" size="lg">
-                  <Heart className="h-5 w-5" />
-                </Button>
-                <Button variant="outline" size="lg" onClick={handleShare}>
-                  <Share2 className="h-5 w-5" />
+                <Input
+                  type="number"
+                  id="quantity"
+                  value={quantity}
+                  onChange={(e) =>
+                    setQuantity(Math.max(1, parseInt(e.target.value) || 1))
+                  }
+                  className="w-16 text-center"
+                  min="1"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity(quantity + 1)}
+                >
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
-            {/* Delivery Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Truck className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <p className="font-medium">Free Delivery</p>
-                  <p className="text-sm text-gray-600">On orders over $50</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Shield className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <p className="font-medium">Cash on Delivery</p>
-                  <p className="text-sm text-gray-600">Pay when you receive</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <RotateCcw className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <p className="font-medium">30 Day Returns</p>
-                  <p className="text-sm text-gray-600">Easy returns policy</p>
-                </CardContent>
-              </Card>
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button onClick={handleAddToCart} disabled={product.stock === 0}>
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Add to Cart
+              </Button>
+              <Button variant="secondary" onClick={() => setShowBuyNowForm(true)} disabled={product.stock === 0}>
+                <Zap className="h-4 w-4 mr-2" />
+                Buy Now
+              </Button>
+            </div>
+
+            <Separator className="my-4" />
+
+            {/* Product Features */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="flex items-center space-x-2">
+                <Truck className="h-4 w-4 text-green-500" />
+                <span>Fast Shipping</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Shield className="h-4 w-4 text-blue-500" />
+                <span>Secure Payments</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RotateCcw className="h-4 w-4 text-yellow-500" />
+                <span>30-Day Returns</span>
+              </div>
+            </div>
+
+            <Separator className="my-4" />
+
+            {/* Social Sharing */}
+            <div className="flex justify-around">
+              <Button variant="ghost" size="sm" onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleWhatsApp}>
+                <MessageCircle className="h-4 w-4 mr-2" />
+                WhatsApp
+              </Button>
+              <Button variant="ghost" size="sm">
+                <Heart className="h-4 w-4 mr-2" />
+                Add to Wishlist
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Product Details Tabs */}
-        <div className="mt-16">
-          <Tabs defaultValue="features" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="features">Features</TabsTrigger>
-              <TabsTrigger value="specifications">Specifications</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="features" className="mt-6">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4">Key Features</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {product.features.map((feature, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                        <span>{feature}</span>
-                      </div>
-                    ))}
+        {/* Buy Now Form Modal */}
+        {showBuyNowForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold">Complete Your Order</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowBuyNowForm(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <form onSubmit={form.handleSubmit(handleBuyNow)} className="space-y-4">
+                  <div>
+                    <Label htmlFor="name">Full Name *</Label>
+                    <Input
+                      id="name"
+                      {...form.register('name', { required: true })}
+                      placeholder="Enter your full name"
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="specifications" className="mt-6">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4">Technical Specifications</h3>
-                  <div className="space-y-3">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="flex justify-between py-2 border-b">
-                        <span className="font-medium">{key}:</span>
-                        <span className="text-gray-600">{value}</span>
-                      </div>
-                    ))}
+                  
+                  <div>
+                    <Label htmlFor="phone">Phone Number *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      {...form.register('phone', { required: true })}
+                      placeholder="Enter your phone number"
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="reviews" className="mt-6">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4">Customer Reviews</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-5 w-5 ${
-                              i < 4 ? 'text-yellow-500 fill-current' : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="font-medium">4.8 out of 5</span>
-                      <span className="text-gray-600">({product.reviews} reviews)</span>
+                  
+                  <div>
+                    <Label htmlFor="city">City *</Label>
+                    <Input
+                      id="city"
+                      {...form.register('city', { required: true })}
+                      placeholder="Enter your city"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="location">Location/Address *</Label>
+                    <Textarea
+                      id="location"
+                      {...form.register('location', { required: true })}
+                      placeholder="Enter your detailed address"
+                    />
+                  </div>
+                  
+                  <div className="border-t pt-4">
+                    <div className="flex justify-between text-sm">
+                      <span>Product:</span>
+                      <span>{product?.name}</span>
                     </div>
-                    <p className="text-gray-600">
-                      Reviews feature will be available soon. Our customers love this product!
-                    </p>
+                    <div className="flex justify-between text-sm">
+                      <span>Quantity:</span>
+                      <span>{quantity}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Price:</span>
+                      <span>${product?.price}</span>
+                    </div>
+                    <div className="flex justify-between font-semibold">
+                      <span>Total:</span>
+                      <span>${product ? (product.price * quantity).toFixed(2) : '0.00'}</span>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+                  
+                  <Button type="submit" className="w-full">
+                    Place Order (Cash on Delivery)
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
-
+      
       <Footer />
     </div>
   );
